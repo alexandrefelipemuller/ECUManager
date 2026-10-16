@@ -16,9 +16,9 @@ O objetivo e mover codigo de protocolo e transporte para `shared` sem alterar co
 ## Fluxo de dados
 
 1. UI solicita conexao.
-2. `SpeeduinoClient` inicia o transporte TCP.
-3. `SpeeduinoProtocol` processa comandos e respostas.
-4. `SpeeduinoLiveData` abastece a UI.
+2. `EcuClient` inicia o transporte TCP.
+3. `EcuProtocol` processa comandos e respostas.
+4. `EcuLiveData` abastece a UI.
 
 ## Dependencias
 

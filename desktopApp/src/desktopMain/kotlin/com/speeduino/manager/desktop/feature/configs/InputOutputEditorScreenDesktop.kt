@@ -37,12 +37,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import io.ecucore.SpeeduinoLiveData
+import io.ecucore.EcuLiveData
 import com.speeduino.manager.desktop.DesktopSpeeduinoController
 import com.speeduino.manager.desktop.ui.DropdownField
 import com.speeduino.manager.desktop.ui.NumberField
 import com.speeduino.manager.io.*
-import io.ecucore.model.SpeeduinoOutputChannels
+import io.ecucore.model.EcuOutputChannels
 
 @Composable
 internal fun InputOutputEditorScreenDesktop(
@@ -222,7 +222,7 @@ private fun buildChannelSummary(channel: IoChannel): String {
 }
 
 private fun defaultChannel(type: IoChannelType): IoChannel {
-    val catalog = SpeeduinoOutputChannels.getCatalog()
+    val catalog = EcuOutputChannels.getCatalog()
     return when (type) {
         IoChannelType.SENSOR -> IoChannel(name = "New Sensor", type = type, config = SensorConfig(catalog.firstOrNull()?.name ?: "rpm", LinearConversion(0.0, 0.0, 1023.0, 5.0, "V")))
         IoChannelType.VIRTUAL -> IoChannel(name = "New Virtual", type = type, config = VirtualConfig(mode = VirtualMode.SIMPLE, sourceChannel = catalog.firstOrNull()?.name ?: "rpm", operation = VirtualCompareConfig(CompareOp.GT, 1000.0)))
@@ -237,7 +237,7 @@ private fun IoChannelEditorDialog(
     onSave: (IoChannel) -> Unit,
 ) {
     val strings = LocalStrings.current
-    val catalog = remember { SpeeduinoOutputChannels.getCatalog().map { it.name } }
+    val catalog = remember { EcuOutputChannels.getCatalog().map { it.name } }
     var name by remember(initial) { mutableStateOf(initial.name) }
     var type by remember(initial) { mutableStateOf(initial.type) }
     var sourceChannel by remember(initial) { mutableStateOf((initial.config as? SensorConfig)?.sourceChannel ?: (initial.config as? VirtualConfig)?.sourceChannel ?: catalog.firstOrNull().orEmpty()) }

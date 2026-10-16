@@ -1,7 +1,7 @@
 package com.speeduino.manager.desktop.navigation
 
 import androidx.compose.runtime.Composable
-import io.ecucore.SpeeduinoLiveData
+import io.ecucore.EcuLiveData
 import com.speeduino.manager.desktop.ConnectionState
 import com.speeduino.manager.desktop.ConnectionType
 import com.speeduino.manager.desktop.DesktopSpeeduinoController
@@ -11,7 +11,7 @@ internal fun ScreenHost(
     route: DesktopRoute,
     controller: DesktopSpeeduinoController,
     connectionState: ConnectionState,
-    liveData: SpeeduinoLiveData?,
+    liveData: EcuLiveData?,
     host: String,
     port: String,
     portIsValid: Boolean,

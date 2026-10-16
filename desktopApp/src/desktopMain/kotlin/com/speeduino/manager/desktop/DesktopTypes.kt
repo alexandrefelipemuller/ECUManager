@@ -43,7 +43,7 @@ internal data class TuningConfigState(
 )
 
 internal data class TransportCallbacks(
-    val onDataReceived: (io.ecucore.SpeeduinoLiveData) -> Unit,
+    val onDataReceived: (io.ecucore.EcuLiveData) -> Unit,
     val onConnectionStateChanged: (Boolean) -> Unit,
     val onError: (String) -> Unit,
 )

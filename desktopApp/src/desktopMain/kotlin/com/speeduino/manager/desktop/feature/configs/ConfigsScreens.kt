@@ -42,7 +42,7 @@ import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import io.ecucore.SpeeduinoLiveData
+import io.ecucore.EcuLiveData
 import io.ecucore.compare.LogCompareResult
 import io.ecucore.compare.LogHeatCellState
 import com.speeduino.manager.desktop.DesktopSpeeduinoController

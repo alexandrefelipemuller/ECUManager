@@ -12,9 +12,9 @@ import io.ecucore.transport.Obd2OptimizationStatus
 import io.ecucore.transport.Obd2OptimizationFeature
 import io.ecucore.transport.EcuTransport
 import android.util.Log
-import io.ecucore.SpeeduinoLiveData
+import io.ecucore.EcuLiveData
 import io.ecucore.connection.ConnectionTrace
-import io.ecucore.connection.ISpeeduinoConnection
+import io.ecucore.connection.IEcuConnection
 import io.ecucore.ecu.FirmwareInfo
 import io.ecucore.model.EcuCapabilities
 import io.ecucore.model.EcuFamily
@@ -40,8 +40,8 @@ import java.util.Locale
 import kotlin.math.roundToInt
 
 class Obd2Transport(
-    private val connection: ISpeeduinoConnection,
-    private val onDataReceived: (SpeeduinoLiveData) -> Unit,
+    private val connection: IEcuConnection,
+    private val onDataReceived: (EcuLiveData) -> Unit,
     private val onConnectionStateChanged: (Boolean) -> Unit,
     private val onError: (String) -> Unit,
     private val profileStore: Obd2ProfileStore? = null,
@@ -166,7 +166,7 @@ class Obd2Transport(
     private var discoveredMode1Bitmap: Boolean = false
     private var observedMode09Unsupported: Boolean = false
     private val pidFailureStreak = mutableMapOf<String, Int>()
-    private var currentLiveData = SpeeduinoLiveData(
+    private var currentLiveData = EcuLiveData(
         secl = 0,
         rpm = 0,
         coolantTemp = 0,
@@ -1466,7 +1466,7 @@ class Obd2Transport(
         )
     }
 
-    private suspend fun checkAndHandleStaleStream(updated: SpeeduinoLiveData) {
+    private suspend fun checkAndHandleStaleStream(updated: EcuLiveData) {
         val fingerprint = "${updated.rpm}|${updated.mapPressure}|${updated.tps}|${updated.coolantTemp}|${updated.intakeTemp}|${updated.batteryVoltage}"
         val now = System.currentTimeMillis()
         if (fingerprint != lastDataFingerprint) {

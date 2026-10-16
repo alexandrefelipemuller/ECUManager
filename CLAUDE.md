@@ -65,15 +65,15 @@ Gradle target `jvm("desktop")` produces `desktopMain`/`desktopTest` automaticall
 - `com.speeduino.manager.units.PlatformLocale` — actual per platform
 - `com.speeduino.manager.connection.{BleConnection,NativeTcpConnection}` — actual per platform
 
-Desktop-only additions live in `jvmMain`/`desktopMain`: `SpeeduinoProtocol`, `SpeeduinoClient`, `ConfigManager`, `ConfigSyncService`, serial/TCP connection implementations (using `jSerialComm`), `LiveLogRecorder`, `BeforeAfterLogCompare`.
+Desktop-only additions live in `jvmMain`/`desktopMain`: `EcuProtocol`, `EcuClient`, `ConfigManager`, `ConfigSyncService`, serial/TCP connection implementations (using `jSerialComm`), `LiveLogRecorder`, `BeforeAfterLogCompare`.
 
 ### ECU abstraction
 
-- `connection.ISpeeduinoConnection` — low-level transport interface (TCP/serial/BLE), byte-level send/receive, handshake retry hooks, legacy vs. "modern" (CRC32) protocol negotiation.
+- `connection.IEcuConnection` — low-level transport interface (TCP/serial/BLE), byte-level send/receive, handshake retry hooks, legacy vs. "modern" (CRC32) protocol negotiation.
 - `transport.EcuTransport` — higher-level interface consumed by the UI: connection lifecycle, live-data streaming, and per-table/per-config read/write operations (VE table, ignition table, AFR table, engine constants, trigger settings, idle control, closed-loop correction, TPS/pressure calibration, etc). Most operations default to `UnsupportedOperationException` — a given ECU family only overrides what it actually supports.
 - `desktopApp` provides concrete `EcuTransport` implementations per ECU family/protocol: `AutoDetectEcuTransport`, `Obd2Transport`/`PromotingObd2Transport`, `PsaTransport`, `RenaultTransport`, `VagTransport`.
 - `model.EcuDefinitionRegistry` resolves a firmware signature string to an `EcuDefinition` via a list of `EcuDefinitionProvider`s (Speeduino, MegaSpeed/MS2Extra, MS2, MS3, rusEFI). Each provider declares its own page catalog, byte order, and block size. When adding support for a new firmware variant, add a provider here rather than branching on signature strings elsewhere.
-- Table/config models (`VeTable`, `IgnitionTable`, `AfrTable`, `EngineConstants`, `TriggerSettings`, `EngineProtectionConfig`, `IdleControlSettings`, etc.) are plain data classes in `model/`, independent of any one ECU family's on-wire layout — family-specific definitions (`SpeeduinoTableDefinitions`, `Ms2TableDefinitions`, `Ms3TableDefinitions`, `RusefiTableDefinitions`, `MegaSpeedIniTableDefinitions`) map wire format to these models.
+- Table/config models (`VeTable`, `IgnitionTable`, `AfrTable`, `EngineConstants`, `TriggerSettings`, `EngineProtectionConfig`, `IdleControlSettings`, etc.) are plain data classes in `model/`, independent of any one ECU family's on-wire layout — family-specific definitions (`EcuTableDefinitions`, `Ms2TableDefinitions`, `Ms3TableDefinitions`, `RusefiTableDefinitions`, `MegaSpeedIniTableDefinitions`) map wire format to these models.
 
 ### Desktop UI structure
 

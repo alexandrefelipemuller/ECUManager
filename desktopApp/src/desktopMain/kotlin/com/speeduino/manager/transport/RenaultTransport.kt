@@ -3,8 +3,8 @@ package com.speeduino.manager.transport
 import io.ecucore.transport.Obd2ProfileStore
 import io.ecucore.transport.EcuTransport
 import android.util.Log
-import io.ecucore.SpeeduinoLiveData
-import io.ecucore.connection.ISpeeduinoConnection
+import io.ecucore.EcuLiveData
+import io.ecucore.connection.IEcuConnection
 import io.ecucore.definition.IniDefinition
 import io.ecucore.ecu.FirmwareInfo
 import io.ecucore.model.AfrTable
@@ -46,8 +46,8 @@ import kotlin.math.max
  * - tentativa híbrida: lê sinais OEM (rpm/coolant) por 22F40C/22F40D com fallback automático SAE
  */
 class RenaultTransport(
-    private val connection: ISpeeduinoConnection,
-    private val onDataReceived: (SpeeduinoLiveData) -> Unit,
+    private val connection: IEcuConnection,
+    private val onDataReceived: (EcuLiveData) -> Unit,
     private val onConnectionStateChanged: (Boolean) -> Unit,
     private val onError: (String) -> Unit,
     private val obd2ProfileStore: Obd2ProfileStore? = null,
@@ -115,7 +115,7 @@ class RenaultTransport(
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private var oemPollingJob: Job? = null
     @Volatile
-    private var lastSaeSample: SpeeduinoLiveData? = null
+    private var lastSaeSample: EcuLiveData? = null
     @Volatile
     private var overlay: OemOverlay = OemOverlay()
     @Volatile
@@ -321,13 +321,13 @@ class RenaultTransport(
     override suspend fun writeEngineConstants(engineConstants: EngineConstants) =
         obd2Delegate.writeEngineConstants(engineConstants)
 
-    private fun onDelegateData(sample: SpeeduinoLiveData) {
+    private fun onDelegateData(sample: EcuLiveData) {
         lastSaeSample = sample
         val applied = applyOverlay(sample)
         onDataReceived(applied)
     }
 
-    private fun applyOverlay(sample: SpeeduinoLiveData): SpeeduinoLiveData {
+    private fun applyOverlay(sample: EcuLiveData): EcuLiveData {
         val current = overlay
         val rpm = if (current.rpmConfidence >= CONFIDENCE_MIN) current.rpm ?: sample.rpm else sample.rpm
         val coolant = if (current.coolantConfidence >= CONFIDENCE_MIN) current.coolant ?: sample.coolantTemp else sample.coolantTemp

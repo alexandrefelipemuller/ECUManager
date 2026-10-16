@@ -1,6 +1,6 @@
 package com.speeduino.manager.telemetry
 
-import io.ecucore.SpeeduinoLiveData
+import io.ecucore.EcuLiveData
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
@@ -181,7 +181,7 @@ class Obd2InvestigationRecorder(
 
     fun recordSample(
         source: String,
-        sample: SpeeduinoLiveData,
+        sample: EcuLiveData,
         extras: Map<String, String> = emptyMap(),
     ) {
         synchronized(lock) {

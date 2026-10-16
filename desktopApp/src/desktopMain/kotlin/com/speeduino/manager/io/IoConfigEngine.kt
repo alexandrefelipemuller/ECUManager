@@ -1,7 +1,7 @@
 package com.speeduino.manager.io
 
-import io.ecucore.SpeeduinoLiveData
-import io.ecucore.model.SpeeduinoOutputChannels
+import io.ecucore.EcuLiveData
+import io.ecucore.model.EcuOutputChannels
 import kotlin.math.abs
 
 class IoConfigEngine {
@@ -15,7 +15,7 @@ class IoConfigEngine {
         }
     }
 
-    fun evaluate(channel: IoChannel, liveData: SpeeduinoLiveData?): IoComputedValue {
+    fun evaluate(channel: IoChannel, liveData: EcuLiveData?): IoComputedValue {
         val status = validate(channel)
         if (status == IoStatus.ERROR) {
             return IoComputedValue("--", "--", null, status)
@@ -27,12 +27,12 @@ class IoConfigEngine {
         }
     }
 
-    fun buildChannelMap(liveData: SpeeduinoLiveData?): Map<String, Double> {
+    fun buildChannelMap(liveData: EcuLiveData?): Map<String, Double> {
         if (liveData == null) return emptyMap()
         val data = liveData.outputChannelData
         val blockSize = liveData.outputChannelBlockSize
         if (data != null && blockSize > 0) {
-            val fields = SpeeduinoOutputChannels.getDefinition(blockSize)
+            val fields = EcuOutputChannels.getDefinition(blockSize)
             return fields.associate { it.name to it.parse(data) }
         }
         return mapOf(
@@ -68,7 +68,7 @@ class IoConfigEngine {
         }
     }
 
-    private fun evaluateSensor(config: SensorConfig, liveData: SpeeduinoLiveData?): IoComputedValue {
+    private fun evaluateSensor(config: SensorConfig, liveData: EcuLiveData?): IoComputedValue {
         val inputs = buildChannelMap(liveData)
         val raw = inputs[config.sourceChannel]
         val rawDisplay = raw?.let { formatValue(it) } ?: "--"
@@ -84,7 +84,7 @@ class IoConfigEngine {
         return IoComputedValue(formatValue(value), rawDisplay, config.conversion.unit, IoStatus.OK)
     }
 
-    private fun evaluateVirtual(config: VirtualConfig, liveData: SpeeduinoLiveData?): IoComputedValue {
+    private fun evaluateVirtual(config: VirtualConfig, liveData: EcuLiveData?): IoComputedValue {
         val inputs = buildChannelMap(liveData)
         return when (config.mode) {
             VirtualMode.SIMPLE -> {
@@ -125,7 +125,7 @@ class IoConfigEngine {
 
     private fun evaluateActuator(
         config: ActuatorConfig,
-        liveData: SpeeduinoLiveData?,
+        liveData: EcuLiveData?,
         status: IoStatus
     ): IoComputedValue {
         val inputs = buildChannelMap(liveData)

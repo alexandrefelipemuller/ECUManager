@@ -46,7 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.speeduino.manager.desktop.ConnectionState
 import com.speeduino.manager.desktop.DesktopSpeeduinoController
-import io.ecucore.SpeeduinoLiveData
+import io.ecucore.EcuLiveData
 import io.ecucore.shared.formatDecimal
 import kotlin.math.PI
 import kotlin.math.cos
@@ -76,7 +76,7 @@ private val APEX_GAUGE_FACE = Color(0xFFEFEDEB)
 @Composable
 internal fun DashboardScreen(
     controller: DesktopSpeeduinoController,
-    liveData: SpeeduinoLiveData?,
+    liveData: EcuLiveData?,
     connectionState: ConnectionState,
     onOpenSettings: () -> Unit
 ) {

@@ -61,7 +61,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import io.ecucore.SpeeduinoLiveData
+import io.ecucore.EcuLiveData
 import io.ecucore.compare.LogCompareResult
 import io.ecucore.compare.LogHeatCellState
 import com.speeduino.manager.desktop.DesktopSpeeduinoController
@@ -88,7 +88,7 @@ import kotlinx.coroutines.launch
 @Composable
 internal fun RealTimeMonitorScreenDesktop(
     controller: DesktopSpeeduinoController,
-    liveData: SpeeduinoLiveData?
+    liveData: EcuLiveData?
 ) {
     val strings = LocalStrings.current
     val logState by controller.logState.collectAsState()

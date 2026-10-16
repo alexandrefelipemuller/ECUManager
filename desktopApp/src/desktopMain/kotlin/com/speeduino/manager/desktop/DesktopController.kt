@@ -1,8 +1,8 @@
 package com.speeduino.manager.desktop
 
 import io.ecucore.ConfigManager
-import io.ecucore.SpeeduinoClient
-import io.ecucore.SpeeduinoLiveData
+import io.ecucore.EcuClient
+import io.ecucore.EcuLiveData
 import io.ecucore.definition.IniCatalogEntry
 import io.ecucore.definition.IniDefinition
 import io.ecucore.shared.Logger
@@ -12,9 +12,9 @@ import io.ecucore.compare.LogCompareReason
 import io.ecucore.compare.LogCompareResult
 import io.ecucore.connection.AutoReconnectCoordinator
 import io.ecucore.connection.ConnectionRetryPolicy
-import io.ecucore.connection.ISpeeduinoConnection
-import io.ecucore.connection.SpeeduinoSerialConnection
-import io.ecucore.connection.SpeeduinoTcpConnection
+import io.ecucore.connection.IEcuConnection
+import io.ecucore.connection.EcuSerialConnection
+import io.ecucore.connection.EcuTcpConnection
 import io.ecucore.definition.IniCatalogErrorCategory
 import io.ecucore.definition.IniCatalogErrorClassifier
 import io.ecucore.definition.isAlreadyActiveDefinition
@@ -35,7 +35,7 @@ import io.ecucore.model.TriggerSettings
 import io.ecucore.model.VeTable
 import io.ecucore.model.RusefiInputOutputSnapshot
 import io.ecucore.model.SecondarySerialConfig
-import io.ecucore.model.SpeeduinoOutputChannels
+import io.ecucore.model.EcuOutputChannels
 import io.ecucore.model.basemap.GeneratedBaseMap
 import io.ecucore.model.logging.LiveLogEntry
 import io.ecucore.model.logging.LiveLogRecorder
@@ -101,7 +101,7 @@ internal class DesktopSpeeduinoController(
     private val _connectionState = MutableStateFlow(ConnectionState())
     val connectionState = _connectionState.asStateFlow()
 
-    private val _liveData = MutableStateFlow<SpeeduinoLiveData?>(null)
+    private val _liveData = MutableStateFlow<EcuLiveData?>(null)
     val liveData = _liveData.asStateFlow()
 
     private val _engineConstants = MutableStateFlow<EngineConstants?>(null)
@@ -217,7 +217,7 @@ internal class DesktopSpeeduinoController(
     val syncPrompt = _syncPrompt.asStateFlow()
 
     private var pollingJob: Job? = null
-    private var connection: ISpeeduinoConnection? = null
+    private var connection: IEcuConnection? = null
     private var client: EcuTransport? = null
     private var localSessionDir: File? = null
     private var ecuSessionDir: File? = null
@@ -244,7 +244,7 @@ internal class DesktopSpeeduinoController(
             tcpHost = host,
             tcpPort = port
         )
-        connectInternal(SpeeduinoTcpConnection(host, port))
+        connectInternal(EcuTcpConnection(host, port))
     }
 
     fun connectSerial(portDescriptor: String, baudRate: Int, connectionType: ConnectionType = ConnectionType.USB) {
@@ -253,7 +253,7 @@ internal class DesktopSpeeduinoController(
             serialPort = portDescriptor,
             serialBaudRate = baudRate
         )
-        connectInternal(SpeeduinoSerialConnection(portDescriptor, baudRate))
+        connectInternal(EcuSerialConnection(portDescriptor, baudRate))
     }
 
     fun saveConnectionProfile(
@@ -325,7 +325,7 @@ internal class DesktopSpeeduinoController(
         }
     }
 
-    private fun connectInternal(newConnection: ISpeeduinoConnection) {
+    private fun connectInternal(newConnection: IEcuConnection) {
         manualDisconnect = false
         reconnectJob?.cancel()
         reconnectJob = null
@@ -399,7 +399,7 @@ internal class DesktopSpeeduinoController(
         }
     }
 
-    private fun createTransport(connection: ISpeeduinoConnection): EcuTransport {
+    private fun createTransport(connection: IEcuConnection): EcuTransport {
         val callbacks = transportCallbacks()
         val profileStore = Obd2OptimizationProfileStore()
         val sessionStore = PsaConnectionSessionStore()
@@ -456,7 +456,7 @@ internal class DesktopSpeeduinoController(
                     obd2FallbackTransport = vagRenaultPsaTransport,
                 )
             }
-            AppProtocol.MS_PROTOCOL -> SpeeduinoClient(
+            AppProtocol.MS_PROTOCOL -> EcuClient(
                 connection = connection,
                 onDataReceived = callbacks.onDataReceived,
                 onConnectionStateChanged = callbacks.onConnectionStateChanged,
@@ -608,7 +608,7 @@ internal class DesktopSpeeduinoController(
     }
 
     fun refreshSerialPorts() {
-        val ports = SpeeduinoSerialConnection.listPorts()
+        val ports = EcuSerialConnection.listPorts()
         _serialPorts.value = ports.map { port ->
             SerialPortInfo(port, port)
         }
@@ -1434,7 +1434,7 @@ internal class DesktopSpeeduinoController(
                             val fields = firstRawEntry
                                 ?.outputChannelBlockSize
                                 ?.takeIf { it > 0 }
-                                ?.let(SpeeduinoOutputChannels::getDefinition)
+                                ?.let(EcuOutputChannels::getDefinition)
                                 .orEmpty()
                             writeSnapshotAsMsl(writer, snapshot, fields, activeSignals)
                         }

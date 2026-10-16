@@ -1,7 +1,7 @@
 package com.speeduino.manager.desktop.navigation
 
 import androidx.compose.runtime.Composable
-import io.ecucore.SpeeduinoLiveData
+import io.ecucore.EcuLiveData
 import com.speeduino.manager.desktop.ConnectionState
 import com.speeduino.manager.desktop.DesktopSpeeduinoController
 import com.speeduino.manager.desktop.InstitutionalScreenDesktop
@@ -13,7 +13,7 @@ import com.speeduino.manager.desktop.feature.app.SettingsScreen
 internal fun AppRouteHost(
     route: DesktopRoute,
     controller: DesktopSpeeduinoController,
-    liveData: SpeeduinoLiveData?,
+    liveData: EcuLiveData?,
     connectionState: ConnectionState,
     onToggleConnection: () -> Unit,
     onOpenSettings: () -> Unit,

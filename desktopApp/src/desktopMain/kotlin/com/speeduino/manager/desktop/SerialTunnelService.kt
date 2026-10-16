@@ -1,6 +1,6 @@
 package com.speeduino.manager.desktop
 
-import io.ecucore.connection.SpeeduinoSerialConnection
+import io.ecucore.connection.EcuSerialConnection
 import io.ecucore.shared.Logger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -44,7 +44,7 @@ internal class SerialTunnelService(private val scope: CoroutineScope) {
 
     private var job: Job? = null
     private var serverSocket: ServerSocket? = null
-    private var serialConnection: SpeeduinoSerialConnection? = null
+    private var serialConnection: EcuSerialConnection? = null
 
     fun start(serialPortDescriptor: String, baudRate: Int, tcpPort: Int) {
         stop()
@@ -57,7 +57,7 @@ internal class SerialTunnelService(private val scope: CoroutineScope) {
         job = scope.launch(Dispatchers.IO) {
             try {
                 Logger.i(TAG, "Opening serial port $serialPortDescriptor @ $baudRate")
-                val serial = SpeeduinoSerialConnection(serialPortDescriptor, baudRate)
+                val serial = EcuSerialConnection(serialPortDescriptor, baudRate)
                 serial.connect()
                 serialConnection = serial
                 Logger.i(TAG, "Serial port open, listening on TCP port $tcpPort")
@@ -88,7 +88,7 @@ internal class SerialTunnelService(private val scope: CoroutineScope) {
         }
     }
 
-    private suspend fun handleClient(socket: Socket, serial: SpeeduinoSerialConnection) {
+    private suspend fun handleClient(socket: Socket, serial: EcuSerialConnection) {
         _state.value = _state.value.copy(
             status = SerialTunnelStatus.CLIENT_CONNECTED,
             clientAddress = socket.inetAddress?.hostAddress

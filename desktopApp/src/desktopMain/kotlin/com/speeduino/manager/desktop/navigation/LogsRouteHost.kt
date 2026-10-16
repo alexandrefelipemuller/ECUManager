@@ -1,7 +1,7 @@
 package com.speeduino.manager.desktop.navigation
 
 import androidx.compose.runtime.Composable
-import io.ecucore.SpeeduinoLiveData
+import io.ecucore.EcuLiveData
 import com.speeduino.manager.desktop.DesktopSpeeduinoController
 import com.speeduino.manager.desktop.LogsEcuToolsScreenDesktop
 import com.speeduino.manager.desktop.feature.logs.BeforeAfterScreenDesktop
@@ -14,7 +14,7 @@ import com.speeduino.manager.desktop.feature.logs.VirtualDynoScreenDesktop
 internal fun LogsRouteHost(
     route: DesktopRoute,
     controller: DesktopSpeeduinoController,
-    liveData: SpeeduinoLiveData?,
+    liveData: EcuLiveData?,
     onOpenConnection: () -> Unit,
     onOpenConnectionSettings: () -> Unit,
     onOpenLogViewer: () -> Unit,
