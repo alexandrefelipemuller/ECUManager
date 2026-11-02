@@ -153,6 +153,15 @@ internal class DesktopSpeeduinoController(
     val tableUndoStore = TableUndoStore()
     val tableChangeConfirmation = TableChangeConfirmation()
 
+    /** Aviso de uso e alerta de veículo em movimento antes de qualquer gravação (HARA H9). */
+    internal val writeSafetyGate = WriteSafetyGate(
+        isNoticeAccepted = { _desktopSettings.value.writeSafetyNoticeAccepted },
+        markNoticeAccepted = { saveDesktopSettings(_desktopSettings.value.copy(writeSafetyNoticeAccepted = true)) },
+        currentSpeedKmh = {
+            _liveData.value?.let { VehicleMotion.speedKmh(it.candidateSpeedKph, it.gpsSpeedKph) }
+        },
+    )
+
     private val _lastError = MutableStateFlow<String?>(null)
     val lastError = _lastError.asStateFlow()
 
@@ -466,6 +475,7 @@ internal class DesktopSpeeduinoController(
                 onError = callbacks.onError,
             ).apply {
                 tableChangeGuard = { assessment -> tableChangeConfirmation.confirm(assessment) }
+                writeGuard = { writeSafetyGate.authorize() }
             }
         }
     }
@@ -538,6 +548,7 @@ internal class DesktopSpeeduinoController(
         _liveData.value = null
         tableUndoStore.clear()
         tableChangeConfirmation.resolve(false)
+        writeSafetyGate.resolve(false)
         if (localSessionDir == null) {
             _engineConstants.value = null
             _triggerSettings.value = null

@@ -14,6 +14,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import com.speeduino.manager.desktop.TableChangeConfirmationDialog
+import com.speeduino.manager.desktop.WriteSafetyDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Surface
 import androidx.compose.material3.FilledTonalButton
@@ -278,6 +279,7 @@ internal fun DesktopAppShell() {
         }
 
         TableChangeConfirmationDialog(controller.tableChangeConfirmation)
+        WriteSafetyDialog(controller.writeSafetyGate)
 
         if (showReportProblemDialog) {
             AlertDialog(

@@ -839,3 +839,29 @@ internal fun TableChangeConfirmationDialog(confirmation: TableChangeConfirmation
         dismissButton = { TextButton(onClick = { confirmation.resolve(false) }) { Text(strings["action.cancel"]) } }
     )
 }
+
+@Composable
+internal fun WriteSafetyDialog(gate: WriteSafetyGate) {
+    val request by gate.pending.collectAsState()
+    val current = request ?: return
+    val strings = LocalStrings.current
+    val (title, body, confirm) = when (current) {
+        WriteSafetyRequest.FirstUseNotice -> Triple(
+            strings["writeSafety.noticeTitle"],
+            strings["writeSafety.noticeBody"],
+            strings["writeSafety.noticeConfirm"],
+        )
+        is WriteSafetyRequest.VehicleMoving -> Triple(
+            strings["writeSafety.movingTitle"],
+            strings.format("writeSafety.movingBody", current.speedKmh.toInt()),
+            strings["writeSafety.movingConfirm"],
+        )
+    }
+    AlertDialog(
+        onDismissRequest = { gate.resolve(false) },
+        title = { Text(title) },
+        text = { Text(body) },
+        confirmButton = { TextButton(onClick = { gate.resolve(true) }) { Text(confirm) } },
+        dismissButton = { TextButton(onClick = { gate.resolve(false) }) { Text(strings["action.cancel"]) } },
+    )
+}

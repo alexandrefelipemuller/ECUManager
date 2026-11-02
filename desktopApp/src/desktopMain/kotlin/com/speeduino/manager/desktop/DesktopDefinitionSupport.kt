@@ -86,6 +86,7 @@ internal data class DesktopSettingsState(
     val lastSerialPort: String? = null,
     val lastSerialBaudRate: Int? = null,
     val gettingStartedDismissed: Boolean = false,
+    val writeSafetyNoticeAccepted: Boolean = false,
     val feedbackPromptDismissed: Boolean = false,
     val ratingPromptDismissed: Boolean = false,
     val appLaunchCount: Int = 0,
@@ -298,6 +299,7 @@ internal object DesktopSettingsStore {
     private const val KEY_LAST_SERIAL_PORT = "last_serial_port"
     private const val KEY_LAST_SERIAL_BAUD_RATE = "last_serial_baud_rate"
     private const val KEY_GETTING_STARTED_DISMISSED = "getting_started_dismissed"
+    private const val KEY_WRITE_SAFETY_NOTICE_ACCEPTED = "write_safety_notice_accepted_v1"
     private const val KEY_FEEDBACK_PROMPT_DISMISSED = "feedback_prompt_dismissed"
     private const val KEY_RATING_PROMPT_DISMISSED = "rating_prompt_dismissed"
     private const val KEY_APP_LAUNCH_COUNT = "app_launch_count"
@@ -373,6 +375,7 @@ internal object DesktopSettingsStore {
         val lastSerialPort = properties.getProperty(KEY_LAST_SERIAL_PORT)?.takeIf { it.isNotBlank() }
         val lastSerialBaudRate = properties.getProperty(KEY_LAST_SERIAL_BAUD_RATE)?.toIntOrNull()
         val gettingStartedDismissed = properties.getProperty(KEY_GETTING_STARTED_DISMISSED)?.toBooleanStrictOrNull() ?: false
+        val writeSafetyNoticeAccepted = properties.getProperty(KEY_WRITE_SAFETY_NOTICE_ACCEPTED)?.toBooleanStrictOrNull() ?: false
         val feedbackPromptDismissed = properties.getProperty(KEY_FEEDBACK_PROMPT_DISMISSED)?.toBooleanStrictOrNull() ?: false
         val ratingPromptDismissed = properties.getProperty(KEY_RATING_PROMPT_DISMISSED)?.toBooleanStrictOrNull() ?: false
         val appLaunchCount = properties.getProperty(KEY_APP_LAUNCH_COUNT)?.toIntOrNull()?.coerceAtLeast(0) ?: 0
@@ -401,6 +404,7 @@ internal object DesktopSettingsStore {
             lastSerialPort = lastSerialPort,
             lastSerialBaudRate = lastSerialBaudRate,
             gettingStartedDismissed = gettingStartedDismissed,
+            writeSafetyNoticeAccepted = writeSafetyNoticeAccepted,
             feedbackPromptDismissed = feedbackPromptDismissed,
             ratingPromptDismissed = ratingPromptDismissed,
             appLaunchCount = appLaunchCount,
@@ -461,6 +465,7 @@ internal object DesktopSettingsStore {
             properties.remove(KEY_LAST_SERIAL_BAUD_RATE)
         }
         properties.setProperty(KEY_GETTING_STARTED_DISMISSED, settings.gettingStartedDismissed.toString())
+        properties.setProperty(KEY_WRITE_SAFETY_NOTICE_ACCEPTED, settings.writeSafetyNoticeAccepted.toString())
         properties.setProperty(KEY_FEEDBACK_PROMPT_DISMISSED, settings.feedbackPromptDismissed.toString())
         properties.setProperty(KEY_RATING_PROMPT_DISMISSED, settings.ratingPromptDismissed.toString())
         properties.setProperty(KEY_APP_LAUNCH_COUNT, settings.appLaunchCount.coerceAtLeast(0).toString())
