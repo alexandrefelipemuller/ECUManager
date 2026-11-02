@@ -25,6 +25,9 @@ import androidx.compose.ui.unit.dp
 import com.speeduino.manager.desktop.DesktopSpeeduinoController
 import com.speeduino.manager.desktop.LocalStrings
 import com.speeduino.manager.desktop.ReportUnsavedChanges
+import com.speeduino.manager.desktop.ui.EcuLoadProgress
+import com.speeduino.manager.desktop.ui.SaveDisabledReason
+import com.speeduino.manager.desktop.ui.rememberEcuLoadState
 import io.ecucore.model.ConfigValidator
 
 internal val REV_LIMITER_RPM_RANGE = ConfigValidator.PROTECTION_RPM_MIN..ConfigValidator.PROTECTION_RPM_MAX
@@ -73,12 +76,15 @@ internal fun RevLimiterScreenDesktop(controller: DesktopSpeeduinoController, onB
     }
 
     val loaded = config
-    val hasChanges = loaded != null && limiterRead && (
-        hardEnabled != loaded.hardRevLimitEnabled ||
-            hardText != loaded.hardRevLimitRpm.toString() ||
-            softText != loaded.softRevLimitRpm.toString()
-        )
-    ReportUnsavedChanges(hasChanges)
+    val changedCount = if (loaded == null || !limiterRead) 0 else listOf(
+        hardEnabled != loaded.hardRevLimitEnabled,
+        hardText != loaded.hardRevLimitRpm.toString(),
+        softText != loaded.softRevLimitRpm.toString(),
+    ).count { it }
+    val hasChanges = changedCount > 0
+    ReportUnsavedChanges(hasChanges, changedCount)
+    val loadState = rememberEcuLoadState(config)
+    val loadFromEcu = { loadState.start(); controller.loadEngineProtectionConfig() }
     val issues = if (limiterRead) revLimiterIssues(hardText, softText) else emptySet()
 
     Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -117,6 +123,8 @@ internal fun RevLimiterScreenDesktop(controller: DesktopSpeeduinoController, onB
                 )
             }
         }
+        EcuLoadProgress(loadState)
+        SaveDisabledReason(hasChanges = hasChanges, dataAvailable = connectionState.isConnected && limiterRead, hasInvalidFields = issues.isNotEmpty())
         Button(
             modifier = Modifier.fillMaxWidth(),
             enabled = hasChanges && connectionState.isConnected && issues.isEmpty(),
@@ -137,7 +145,7 @@ internal fun RevLimiterScreenDesktop(controller: DesktopSpeeduinoController, onB
         OutlinedButton(
             modifier = Modifier.fillMaxWidth(),
             enabled = connectionState.isConnected,
-            onClick = { controller.loadEngineProtectionConfig() },
+            onClick = { loadFromEcu() },
         ) { Text(strings["btn_load"]) }
         OutlinedButton(modifier = Modifier.fillMaxWidth(), onClick = onBack) { Text(strings["btn_back"]) }
     }

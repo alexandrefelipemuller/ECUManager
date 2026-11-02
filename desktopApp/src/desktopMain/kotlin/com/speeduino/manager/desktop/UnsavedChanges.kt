@@ -14,12 +14,21 @@ import androidx.compose.runtime.rememberUpdatedState
  */
 val LocalUnsavedChangesReporter = compositionLocalOf<(Boolean) -> Unit> { {} }
 
+/** Quantos campos a tela alterou, para o diálogo de descarte dizer o que se perde. */
+val LocalUnsavedChangesCountReporter = compositionLocalOf<(Int) -> Unit> { {} }
+
 /** Declara [dirty] ao shell enquanto a tela está na composição e limpa ao sair. */
 @Composable
-fun ReportUnsavedChanges(dirty: Boolean) {
+fun ReportUnsavedChanges(dirty: Boolean, changedCount: Int = 0) {
     val report by rememberUpdatedState(LocalUnsavedChangesReporter.current)
     DisposableEffect(dirty) {
         report(dirty)
         onDispose { report(false) }
+    }
+    val reportCount by rememberUpdatedState(LocalUnsavedChangesCountReporter.current)
+    val count = if (dirty) changedCount else 0
+    DisposableEffect(count) {
+        reportCount(count)
+        onDispose { reportCount(0) }
     }
 }

@@ -1,5 +1,11 @@
 package com.speeduino.manager.desktop.feature.configs
 
+import com.speeduino.manager.desktop.ui.rememberEcuLoadState
+import com.speeduino.manager.desktop.ui.EcuLoadProgress
+import com.speeduino.manager.desktop.ui.isOutOfRange
+import com.speeduino.manager.desktop.ui.invalidNumbers
+import com.speeduino.manager.desktop.ui.SaveDisabledReason
+import androidx.compose.runtime.mutableIntStateOf
 import com.speeduino.manager.desktop.ReportUnsavedChanges
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
@@ -36,13 +42,16 @@ internal fun InjectorConfigScreenDesktop(controller: DesktopSpeeduinoController)
     val strings = LocalStrings.current
     val constants by controller.engineConstants.collectAsState()
 
-    var openTime by remember(constants) { mutableStateOf(constants?.injectorOpenTimeMs?.toString() ?: "1.0") }
-    var dutyLimit by remember(constants) { mutableStateOf(constants?.injectorDutyLimit?.toString() ?: "85") }
-    var closeAngle by remember(constants) { mutableStateOf(constants?.injectorCloseAngle?.toString() ?: "355") }
-    var correctionMode by remember(constants) { mutableStateOf(constants?.injectorBatteryCorrectionMode ?: InjectorBatteryCorrectionMode.OPEN_TIME_ONLY) }
+    var restoreKey by remember { mutableIntStateOf(0) }
+    val loadState = rememberEcuLoadState(constants)
+    var openTime by remember(constants, restoreKey) { mutableStateOf(constants?.injectorOpenTimeMs?.toString() ?: "1.0") }
+    var dutyLimit by remember(constants, restoreKey) { mutableStateOf(constants?.injectorDutyLimit?.toString() ?: "85") }
+    var closeAngle by remember(constants, restoreKey) { mutableStateOf(constants?.injectorCloseAngle?.toString() ?: "355") }
+    var correctionMode by remember(constants, restoreKey) { mutableStateOf(constants?.injectorBatteryCorrectionMode ?: InjectorBatteryCorrectionMode.OPEN_TIME_ONLY) }
     val voltageBins = remember(constants) { mutableStateListOf(*(constants?.batteryVoltageBins ?: listOf(6f, 8f, 10f, 12f, 14f, 16f)).map { it.toString() }.toTypedArray()) }
     val correctionRates = remember(constants) { mutableStateListOf(*(constants?.injectorVoltageCorrectionRates ?: listOf(160, 135, 115, 100, 92, 88)).map { it.toString() }.toTypedArray()) }
     var hasChanges by remember { mutableStateOf(false) }
+    val hasInvalidFields = invalidNumbers(openTime, dutyLimit, closeAngle)
     ReportUnsavedChanges(hasChanges)
 
     LaunchedEffect(constants) {
@@ -66,9 +75,9 @@ internal fun InjectorConfigScreenDesktop(controller: DesktopSpeeduinoController)
                 Text(strings["label.injectorConfigTitle"], style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Medium)
                 Text(strings["label.injectorConfigSubtitle"], style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    FilledTonalButton(onClick = controller::loadEngineConstants, enabled = constants == null || hasChanges) { Text(strings["action.loadEcu"]) }
+                    FilledTonalButton(onClick = { loadState.start(); controller.loadEngineConstants() }, enabled = constants == null || hasChanges) { Text(strings["action.loadEcu"]) }
                     FilledTonalButton(
-                        enabled = hasChanges && constants != null,
+                        enabled = hasChanges && constants != null && !hasInvalidFields,
                         onClick = {
                             constants?.let { current ->
                                 controller.saveEngineConstants(
@@ -85,7 +94,10 @@ internal fun InjectorConfigScreenDesktop(controller: DesktopSpeeduinoController)
                             hasChanges = false
                         }
                     ) { Text(strings["action.saveEcu"]) }
+                    FilledTonalButton(onClick = { restoreKey++; hasChanges = false }, enabled = hasChanges) { Text(strings["btn_restore_ecu_values"]) }
                 }
+                EcuLoadProgress(loadState)
+                SaveDisabledReason(hasChanges = hasChanges, dataAvailable = constants != null, hasInvalidFields = hasInvalidFields)
             }
         }
 

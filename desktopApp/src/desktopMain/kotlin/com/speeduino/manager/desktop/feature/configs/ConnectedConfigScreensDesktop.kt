@@ -1,5 +1,11 @@
 package com.speeduino.manager.desktop.feature.configs
 
+import com.speeduino.manager.desktop.ui.rememberEcuLoadState
+import com.speeduino.manager.desktop.ui.EcuLoadProgress
+import com.speeduino.manager.desktop.ui.isOutOfRange
+import com.speeduino.manager.desktop.ui.invalidNumbers
+import com.speeduino.manager.desktop.ui.SaveDisabledReason
+import androidx.compose.runtime.mutableIntStateOf
 import com.speeduino.manager.desktop.ReportUnsavedChanges
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
@@ -191,16 +197,19 @@ internal fun SensorsCalibrationScreenDesktop(controller: DesktopSpeeduinoControl
 internal fun EngineProtectionEditorScreenDesktop(controller: DesktopSpeeduinoController) {
     val strings = LocalStrings.current
     val config by controller.engineProtectionConfig.collectAsState()
-    var protectionCut by remember(config) { mutableStateOf(config?.protectionCut ?: ProtectionCut.BOTH) }
-    var cutMethod by remember(config) { mutableStateOf(config?.cutMethod ?: CutMethod.FULL) }
-    var rpmMin by remember(config) { mutableStateOf(config?.engineProtectionRpmMin?.toString() ?: "1500") }
-    var engineProtectEnabled by remember(config) { mutableStateOf(config?.engineProtectEnabled ?: false) }
-    var revLimiterEnabled by remember(config) { mutableStateOf(config?.revLimiterEnabled ?: false) }
-    var boostLimitEnabled by remember(config) { mutableStateOf(config?.boostLimitEnabled ?: false) }
-    var oilEnabled by remember(config) { mutableStateOf(config?.oilPressureProtectionEnabled ?: false) }
-    var afrEnabled by remember(config) { mutableStateOf(config?.afrProtectionEnabled ?: false) }
-    var coolantEnabled by remember(config) { mutableStateOf(config?.coolantProtectionEnabled ?: false) }
+    var restoreKey by remember { mutableIntStateOf(0) }
+    val loadState = rememberEcuLoadState(config)
+    var protectionCut by remember(config, restoreKey) { mutableStateOf(config?.protectionCut ?: ProtectionCut.BOTH) }
+    var cutMethod by remember(config, restoreKey) { mutableStateOf(config?.cutMethod ?: CutMethod.FULL) }
+    var rpmMin by remember(config, restoreKey) { mutableStateOf(config?.engineProtectionRpmMin?.toString() ?: "1500") }
+    var engineProtectEnabled by remember(config, restoreKey) { mutableStateOf(config?.engineProtectEnabled ?: false) }
+    var revLimiterEnabled by remember(config, restoreKey) { mutableStateOf(config?.revLimiterEnabled ?: false) }
+    var boostLimitEnabled by remember(config, restoreKey) { mutableStateOf(config?.boostLimitEnabled ?: false) }
+    var oilEnabled by remember(config, restoreKey) { mutableStateOf(config?.oilPressureProtectionEnabled ?: false) }
+    var afrEnabled by remember(config, restoreKey) { mutableStateOf(config?.afrProtectionEnabled ?: false) }
+    var coolantEnabled by remember(config, restoreKey) { mutableStateOf(config?.coolantProtectionEnabled ?: false) }
     var hasChanges by remember { mutableStateOf(false) }
+    val hasInvalidFields = (invalidNumbers(rpmMin) || isOutOfRange(rpmMin, io.ecucore.model.ConfigValidator.PROTECTION_RPM_MIN..io.ecucore.model.ConfigValidator.PROTECTION_RPM_MAX))
     ReportUnsavedChanges(hasChanges)
     var status by remember { mutableStateOf(strings["label.calibrationLoadHint"]) }
 
@@ -227,9 +236,9 @@ internal fun EngineProtectionEditorScreenDesktop(controller: DesktopSpeeduinoCon
                 Text(strings["label.engineProtectionLimitersSubtitle"], style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Text(status, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    FilledTonalButton(onClick = controller::loadEngineProtectionConfig, enabled = config == null || hasChanges) { Text(strings["action.loadEcu"]) }
+                    FilledTonalButton(onClick = { loadState.start(); controller.loadEngineProtectionConfig() }, enabled = config == null || hasChanges) { Text(strings["action.loadEcu"]) }
                     FilledTonalButton(
-                        enabled = hasChanges,
+                        enabled = hasChanges && !hasInvalidFields,
                         onClick = {
                             controller.saveEngineProtectionConfig(
                                 EngineProtectionConfig(
@@ -248,7 +257,10 @@ internal fun EngineProtectionEditorScreenDesktop(controller: DesktopSpeeduinoCon
                             status = strings["label.calibrationLoaded"]
                         }
                     ) { Text(strings["action.saveEcu"]) }
+                    FilledTonalButton(onClick = { restoreKey++; hasChanges = false }, enabled = hasChanges) { Text(strings["btn_restore_ecu_values"]) }
                 }
+                EcuLoadProgress(loadState)
+                SaveDisabledReason(hasChanges = hasChanges, dataAvailable = config != null, hasInvalidFields = hasInvalidFields)
             }
         }
 
@@ -275,7 +287,7 @@ internal fun EngineProtectionEditorScreenDesktop(controller: DesktopSpeeduinoCon
                     cutMethod = cutMethodFromLabel(strings, label)
                     hasChanges = true
                 }
-                NumberField(strings["label.minimumRpm"], rpmMin, { rpmMin = it; hasChanges = true })
+                NumberField(strings["label.minimumRpm"], rpmMin, { rpmMin = it; hasChanges = true }, range = io.ecucore.model.ConfigValidator.PROTECTION_RPM_MIN..io.ecucore.model.ConfigValidator.PROTECTION_RPM_MAX, integerOnly = true)
                 ToggleField(strings["label.engineProtectionEnabled"], engineProtectEnabled) { engineProtectEnabled = it; hasChanges = true }
                 ToggleField(strings["label.revLimiterEnabled"], revLimiterEnabled) { revLimiterEnabled = it; hasChanges = true }
                 ToggleField(strings["label.boostLimitEnabled"], boostLimitEnabled) { boostLimitEnabled = it; hasChanges = true }

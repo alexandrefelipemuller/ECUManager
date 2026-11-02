@@ -17,6 +17,7 @@ import androidx.compose.material3.TextButton
 import com.speeduino.manager.desktop.TableChangeConfirmationDialog
 import com.speeduino.manager.desktop.WriteSafetyDialog
 import com.speeduino.manager.desktop.LocalUnsavedChangesReporter
+import com.speeduino.manager.desktop.LocalUnsavedChangesCountReporter
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Surface
@@ -215,7 +216,12 @@ internal fun DesktopAppShell() {
                     }
 
                     Box(modifier = screenContentModifier) {
-                    CompositionLocalProvider(LocalUnsavedChangesReporter provides { appState.unsavedChanges = it }) {
+                    CompositionLocalProvider(
+                        LocalUnsavedChangesReporter provides { appState.unsavedChanges = it },
+                        LocalUnsavedChangesCountReporter provides { appState.unsavedCount = it },
+                        com.speeduino.manager.desktop.ui.LocalTableCellScale provides
+                            controller.desktopSettings.collectAsState().value.tableDensity.cellScale,
+                    ) {
 ScreenHost(
                                     route = appState.currentRoute,
                                     controller = controller,
@@ -309,7 +315,14 @@ ScreenHost(
             AlertDialog(
                 onDismissRequest = appState::keepEditing,
                 title = { Text(strings["unsaved.title"]) },
-                text = { Text(strings["unsaved.message"]) },
+                text = {
+                    Column {
+                        Text(strings["unsaved.message"])
+                        if (appState.unsavedCount > 0) {
+                            Text(strings.format("unsaved_changes_count", appState.unsavedCount), fontWeight = androidx.compose.ui.text.font.FontWeight.Medium)
+                        }
+                    }
+                },
                 confirmButton = { TextButton(onClick = appState::discardAndNavigate) { Text(strings["unsaved.discard"]) } },
                 dismissButton = { TextButton(onClick = appState::keepEditing) { Text(strings["unsaved.keepEditing"]) } },
             )

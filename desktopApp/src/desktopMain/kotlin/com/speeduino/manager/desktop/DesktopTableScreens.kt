@@ -633,7 +633,7 @@ private fun HeaderCell(text: String, highlighted: Boolean = false, onClick: (() 
         border = BorderStroke(if (highlighted) 2.dp else 1.dp, if (highlighted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.4f))
     ) {
         val modifier = Modifier
-            .width(68.dp)
+            .width(BASE_TABLE_CELL_WIDTH * com.speeduino.manager.desktop.ui.LocalTableCellScale.current)
             .padding(vertical = 6.dp, horizontal = 8.dp)
         val clickable = if (onClick != null) modifier.clickable { onClick() } else modifier
         Box(
@@ -645,8 +645,8 @@ private fun HeaderCell(text: String, highlighted: Boolean = false, onClick: (() 
     }
 }
 
-private val TABLE_CELL_WIDTH = 68.dp
-private val TABLE_CELL_HEIGHT = 36.dp
+private val BASE_TABLE_CELL_WIDTH = 68.dp
+private val BASE_TABLE_CELL_HEIGHT = 36.dp
 private val TABLE_CELL_SPACING = 6.dp
 
 @Composable
@@ -668,6 +668,9 @@ private fun ValueCell(
     val bg = background.copy(alpha = 0.78f)
     val contentColor = if (bg.luminance() < 0.45f) Color(0xFFF8F6F2) else Color(0xFF1C1B1A)
     val density = LocalDensity.current
+    val cellScale = com.speeduino.manager.desktop.ui.LocalTableCellScale.current
+    val TABLE_CELL_WIDTH = BASE_TABLE_CELL_WIDTH * cellScale
+    val TABLE_CELL_HEIGHT = BASE_TABLE_CELL_HEIGHT * cellScale
     val borderModifier = when {
         isSelected -> Modifier.border(3.dp, MaterialTheme.colorScheme.error, RoundedCornerShape(8.dp))
         isLiveCursor -> Modifier.border(3.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(8.dp))

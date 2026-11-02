@@ -1,5 +1,9 @@
 package com.speeduino.manager.desktop.feature.configs
 
+import com.speeduino.manager.desktop.ui.isOutOfRange
+import com.speeduino.manager.desktop.ui.invalidNumbers
+import com.speeduino.manager.desktop.ui.SaveDisabledReason
+import androidx.compose.runtime.mutableIntStateOf
 import com.speeduino.manager.desktop.ReportUnsavedChanges
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
@@ -39,9 +43,10 @@ internal fun IgnitionConfigScreenDesktop(controller: DesktopSpeeduinoController)
     val constants by controller.engineConstants.collectAsState()
     val trigger by controller.triggerSettings.collectAsState()
 
-    var ignitionAlgorithm by remember(constants) { mutableStateOf(constants?.ignitionAlgorithm ?: Algorithm.SPEED_DENSITY) }
-    var fixedTimingEnabled by remember(constants) { mutableStateOf(constants?.ignitionFixedTimingEnabled ?: false) }
-    var perToothEnabled by remember(constants) { mutableStateOf(constants?.ignitionPerToothEnabled ?: false) }
+    var restoreKey by remember { mutableIntStateOf(0) }
+    var ignitionAlgorithm by remember(constants, restoreKey) { mutableStateOf(constants?.ignitionAlgorithm ?: Algorithm.SPEED_DENSITY) }
+    var fixedTimingEnabled by remember(constants, restoreKey) { mutableStateOf(constants?.ignitionFixedTimingEnabled ?: false) }
+    var perToothEnabled by remember(constants, restoreKey) { mutableStateOf(constants?.ignitionPerToothEnabled ?: false) }
     var sparkMode by remember(trigger) { mutableStateOf(trigger?.sparkMode ?: 0) }
     var crankingAdvance by remember(trigger) { mutableStateOf(trigger?.crankingAdvanceDeg?.toString() ?: "10") }
     var fixedTimingAngle by remember(trigger) { mutableStateOf(trigger?.fixedTimingAngleDeg?.toString() ?: "10") }
@@ -55,6 +60,7 @@ internal fun IgnitionConfigScreenDesktop(controller: DesktopSpeeduinoController)
     var primarySpeed by remember(trigger) { mutableStateOf(trigger?.primaryTriggerSpeed ?: TriggerSettings.TriggerSpeed.CRANK) }
     var filter by remember(trigger) { mutableStateOf(trigger?.triggerFilter ?: TriggerSettings.TriggerFilter.OFF) }
     var hasChanges by remember { mutableStateOf(false) }
+    val hasInvalidFields = invalidNumbers(crankingAdvance, fixedTimingAngle, triggerAngle, triggerMultiplier, baseTeeth, missingTeeth)
     ReportUnsavedChanges(hasChanges)
 
     LaunchedEffect(constants, trigger) { hasChanges = false }
@@ -81,7 +87,7 @@ internal fun IgnitionConfigScreenDesktop(controller: DesktopSpeeduinoController)
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     FilledTonalButton(onClick = { controller.loadEngineConstants(); controller.loadTriggerSettings() }, enabled = constants == null || trigger == null || hasChanges) { Text(strings["action.loadEcu"]) }
                     FilledTonalButton(
-                        enabled = hasChanges && constants != null && trigger != null,
+                        enabled = hasChanges && constants != null && trigger != null && !hasInvalidFields,
                         onClick = {
                             constants?.let { current ->
                                 controller.saveEngineConstants(current.copy(
@@ -109,7 +115,9 @@ internal fun IgnitionConfigScreenDesktop(controller: DesktopSpeeduinoController)
                             hasChanges = false
                         }
                     ) { Text(strings["action.saveEcu"]) }
+                    FilledTonalButton(onClick = { restoreKey++; hasChanges = false }, enabled = hasChanges) { Text(strings["btn_restore_ecu_values"]) }
                 }
+                SaveDisabledReason(hasChanges = hasChanges, dataAvailable = constants != null, hasInvalidFields = hasInvalidFields)
             }
         }
 

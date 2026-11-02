@@ -87,14 +87,26 @@ internal fun NumberField(
     label: String,
     value: String,
     onValueChange: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    /** Faixa válida (inteiros); fora dela o campo é marcado e o erro diz qual é a faixa. */
+    range: IntRange? = null,
+    integerOnly: Boolean = false,
 ) {
+    val strings = LocalStrings.current
+    val notANumber = isInvalidNumber(value, integerOnly)
+    val outOfRange = range != null && isOutOfRange(value, range)
     Column(modifier = modifier) {
         Text(label, style = MaterialTheme.typography.labelMedium)
         OutlinedTextField(
             value = value,
             onValueChange = onValueChange,
             singleLine = true,
+            isError = notANumber || outOfRange,
+            supportingText = when {
+                outOfRange -> ({ Text(strings.format("field_error_out_of_range", range!!.first, range.last)) })
+                notANumber -> ({ Text(strings["field_error_invalid_number"]) })
+                else -> null
+            },
             modifier = Modifier.fillMaxWidth()
         )
     }

@@ -64,6 +64,17 @@ internal const val SHIFT_LIGHT_RPM_DEFAULT = 6000
 internal const val SHIFT_LIGHT_RPM_MIN = 3000
 internal const val SHIFT_LIGHT_RPM_MAX = 8000
 
+/** Tamanho das células das tabelas (espelha `TableDensity` do app Android). */
+internal enum class TableDensity(val storageValue: String, val cellScale: Float) {
+    DEFAULT("default", 1f),
+    LARGE("large", 1.3f),
+    EXTRA_LARGE("extra_large", 1.6f);
+
+    companion object {
+        fun fromStorage(value: String?): TableDensity = entries.firstOrNull { it.storageValue == value } ?: DEFAULT
+    }
+}
+
 internal enum class DesktopDashboardMode { DEFAULT, PETROL, FUTURE, APEX }
 
 internal enum class InitialScreen { HOME, DASHBOARD }
@@ -101,6 +112,7 @@ internal data class DesktopSettingsState(
     val initialScreen: InitialScreen = InitialScreen.HOME,
     /** Id do dashboard RealDash (.rd) importado ativo; `null` = usa o dashboard embutido. */
     val importedDashboardId: String? = null,
+    val tableDensity: TableDensity = TableDensity.DEFAULT,
 )
 
 internal data class ManualFirmwareProfileOption(
@@ -315,6 +327,8 @@ internal object DesktopSettingsStore {
     private const val KEY_DASHBOARD_MODE = "dashboard_mode"
     private const val KEY_INITIAL_SCREEN = "initial_screen"
     private const val KEY_IMPORTED_DASHBOARD_ID = "imported_dashboard_id"
+    private const val KEY_TABLE_DENSITY = "table_density"
+    private const val KEY_DISMISSED_HINTS = "dismissed_hints"
 
     fun settingsDir(): File = File(System.getProperty("user.home"), ".speeduino-manager-desktop").apply { mkdirs() }
 
@@ -335,6 +349,17 @@ internal object DesktopSettingsStore {
         file.outputStream().use { output ->
             properties.store(output, "SpeeduinoManager Desktop settings")
         }
+    }
+
+    fun isHintDismissed(key: String): Boolean =
+        loadProperties(settingsFile()).getProperty(KEY_DISMISSED_HINTS).orEmpty().split(',').contains(key)
+
+    fun dismissHint(key: String) {
+        val properties = loadProperties(settingsFile())
+        val keys = properties.getProperty(KEY_DISMISSED_HINTS).orEmpty().split(',').filter { it.isNotBlank() }.toMutableSet()
+        keys += key
+        properties.setProperty(KEY_DISMISSED_HINTS, keys.joinToString(","))
+        storeProperties(settingsFile(), properties)
     }
 
     fun loadLanguage(): AppLanguage {
@@ -391,6 +416,7 @@ internal object DesktopSettingsStore {
         val firstBootLivePanelDone = properties.getProperty(KEY_FIRST_BOOT_LIVE_PANEL_DONE)?.toBooleanStrictOrNull() ?: false
         val dashboardMode = runCatching { DesktopDashboardMode.valueOf(properties.getProperty(KEY_DASHBOARD_MODE) ?: DesktopDashboardMode.DEFAULT.name) }.getOrDefault(DesktopDashboardMode.DEFAULT)
         val importedDashboardId = properties.getProperty(KEY_IMPORTED_DASHBOARD_ID)?.takeIf { it.isNotBlank() }
+        val tableDensity = TableDensity.fromStorage(properties.getProperty(KEY_TABLE_DENSITY))
         val initialScreen = runCatching { InitialScreen.valueOf(properties.getProperty(KEY_INITIAL_SCREEN) ?: InitialScreen.HOME.name) }.getOrDefault(InitialScreen.HOME)
         return DesktopSettingsState(
             unitSystem = unitSystem,
@@ -421,6 +447,7 @@ internal object DesktopSettingsStore {
             firstBootLivePanelDone = firstBootLivePanelDone,
             dashboardMode = dashboardMode,
             importedDashboardId = importedDashboardId,
+            tableDensity = tableDensity,
             initialScreen = initialScreen,
         )
     }
@@ -483,6 +510,7 @@ internal object DesktopSettingsStore {
         properties.setProperty(KEY_FIRST_BOOT_LIVE_PANEL_DONE, settings.firstBootLivePanelDone.toString())
         properties.setProperty(KEY_DASHBOARD_MODE, settings.dashboardMode.name)
         properties.setProperty(KEY_INITIAL_SCREEN, settings.initialScreen.name)
+        properties.setProperty(KEY_TABLE_DENSITY, settings.tableDensity.storageValue)
         if (settings.importedDashboardId != null) properties.setProperty(KEY_IMPORTED_DASHBOARD_ID, settings.importedDashboardId) else properties.remove(KEY_IMPORTED_DASHBOARD_ID)
         storeProperties(settingsFile(), properties)
     }

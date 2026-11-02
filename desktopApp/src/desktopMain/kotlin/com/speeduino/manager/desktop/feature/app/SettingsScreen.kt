@@ -169,6 +169,17 @@ internal fun SettingsScreen(controller: DesktopSpeeduinoController) {
                     )
                 }
 
+                DropdownField(
+                    label = strings["settings_table_density_title"],
+                    value = tableDensityLabel(draftSettings.tableDensity, strings),
+                    options = com.speeduino.manager.desktop.TableDensity.entries.map { tableDensityLabel(it, strings) }
+                ) { label ->
+                    draftSettings = draftSettings.copy(
+                        tableDensity = com.speeduino.manager.desktop.TableDensity.entries.first { tableDensityLabel(it, strings) == label }
+                    )
+                }
+                Text(strings["settings_table_density_help"], style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+
                 ImportedDashboardsSection(
                     activeId = draftSettings.importedDashboardId,
                     onActiveChange = { draftSettings = draftSettings.copy(importedDashboardId = it) },
@@ -563,4 +574,10 @@ private fun ImportedDashboardsSection(activeId: String?, onActiveChange: (String
         }) { Text(strings["dashboard_import_dialog_confirm"]) }
         message?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
     }
+}
+
+private fun tableDensityLabel(density: com.speeduino.manager.desktop.TableDensity, strings: com.speeduino.manager.desktop.Strings): String = when (density) {
+    com.speeduino.manager.desktop.TableDensity.DEFAULT -> strings["settings_table_density_default"]
+    com.speeduino.manager.desktop.TableDensity.LARGE -> strings["settings_table_density_large"]
+    com.speeduino.manager.desktop.TableDensity.EXTRA_LARGE -> strings["settings_table_density_extra_large"]
 }

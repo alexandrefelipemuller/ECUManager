@@ -1,5 +1,9 @@
 package com.speeduino.manager.desktop
 
+import com.speeduino.manager.desktop.ui.isOutOfRange
+import com.speeduino.manager.desktop.ui.invalidNumbers
+import com.speeduino.manager.desktop.ui.SaveDisabledReason
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -34,17 +38,19 @@ import com.speeduino.manager.desktop.ui.ToggleField
 internal fun IdleControlScreenDesktop(controller: DesktopSpeeduinoController) {
     val settings by controller.idleControlSettings.collectAsState()
     val strings = LocalStrings.current
-    var controlMode by remember(settings) { mutableStateOf(settings?.controlMode ?: IdleControlMode.NONE) }
-    var idleTargetRpm by remember(settings) { mutableStateOf(settings?.idleTargetRpm?.toString() ?: "900") }
-    var fastIdleTempC by remember(settings) { mutableStateOf(settings?.fastIdleTempC?.toString() ?: "40") }
-    var pwmChannels by remember(settings) { mutableStateOf(settings?.pwmChannels?.toString() ?: "1") }
-    var idleValveFrequencyHz by remember(settings) { mutableStateOf(settings?.idleValveFrequencyHz?.toString() ?: "120") }
-    var pwmDirectionReverse by remember(settings) { mutableStateOf(settings?.pwmDirectionReverse ?: false) }
-    var runBeforeStart by remember(settings) { mutableStateOf(settings?.runBeforeStart ?: false) }
-    var stepTimeMs by remember(settings) { mutableStateOf(settings?.stepTimeMs?.toString() ?: "3") }
-    var stepHomeSteps by remember(settings) { mutableStateOf(settings?.stepHomeSteps?.toString() ?: "100") }
-    var stepMinimumSteps by remember(settings) { mutableStateOf(settings?.stepMinimumSteps?.toString() ?: "3") }
+    var restoreKey by remember { mutableIntStateOf(0) }
+    var controlMode by remember(settings, restoreKey) { mutableStateOf(settings?.controlMode ?: IdleControlMode.NONE) }
+    var idleTargetRpm by remember(settings, restoreKey) { mutableStateOf(settings?.idleTargetRpm?.toString() ?: "900") }
+    var fastIdleTempC by remember(settings, restoreKey) { mutableStateOf(settings?.fastIdleTempC?.toString() ?: "40") }
+    var pwmChannels by remember(settings, restoreKey) { mutableStateOf(settings?.pwmChannels?.toString() ?: "1") }
+    var idleValveFrequencyHz by remember(settings, restoreKey) { mutableStateOf(settings?.idleValveFrequencyHz?.toString() ?: "120") }
+    var pwmDirectionReverse by remember(settings, restoreKey) { mutableStateOf(settings?.pwmDirectionReverse ?: false) }
+    var runBeforeStart by remember(settings, restoreKey) { mutableStateOf(settings?.runBeforeStart ?: false) }
+    var stepTimeMs by remember(settings, restoreKey) { mutableStateOf(settings?.stepTimeMs?.toString() ?: "3") }
+    var stepHomeSteps by remember(settings, restoreKey) { mutableStateOf(settings?.stepHomeSteps?.toString() ?: "100") }
+    var stepMinimumSteps by remember(settings, restoreKey) { mutableStateOf(settings?.stepMinimumSteps?.toString() ?: "3") }
     var hasChanges by remember { mutableStateOf(false) }
+    val hasInvalidFields = (invalidNumbers(idleTargetRpm, fastIdleTempC, pwmChannels, idleValveFrequencyHz, stepTimeMs, stepHomeSteps, stepMinimumSteps) || isOutOfRange(idleTargetRpm, 0..2550) || isOutOfRange(pwmChannels, 1..2))
     ReportUnsavedChanges(hasChanges)
 
     LaunchedEffect(Unit) {
@@ -77,7 +83,10 @@ internal fun IdleControlScreenDesktop(controller: DesktopSpeeduinoController) {
                 )
                 controller.saveIdleControlSettings(updated)
             },
-            saveEnabled = hasChanges,
+            saveEnabled = hasChanges && !hasInvalidFields,
+            onRestore = { restoreKey++; hasChanges = false },
+            restoreEnabled = hasChanges,
+            footer = { SaveDisabledReason(hasChanges = hasChanges, dataAvailable = settings != null, hasInvalidFields = hasInvalidFields) },
             loadEnabled = settings == null || hasChanges
         )
 
@@ -95,7 +104,7 @@ internal fun IdleControlScreenDesktop(controller: DesktopSpeeduinoController) {
                     controlMode = IdleControlMode.values().first { it.displayLabel() == label }
                     hasChanges = true
                 }
-                NumberField("Alvo RPM", idleTargetRpm, { idleTargetRpm = it; hasChanges = true }, Modifier.weight(1f))
+                NumberField("Alvo RPM", idleTargetRpm, { idleTargetRpm = it; hasChanges = true }, Modifier.weight(1f), range = 0..2550, integerOnly = true)
                 NumberField("Fast idle °C", fastIdleTempC, { fastIdleTempC = it; hasChanges = true }, Modifier.weight(1f))
             }
         }
@@ -106,7 +115,7 @@ internal fun IdleControlScreenDesktop(controller: DesktopSpeeduinoController) {
                 subtitle = "Saidas e frequencia da valvula de marcha lenta."
             ) {
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    NumberField("Saidas", pwmChannels, { pwmChannels = it; hasChanges = true }, Modifier.weight(1f))
+                    NumberField("Saidas", pwmChannels, { pwmChannels = it; hasChanges = true }, Modifier.weight(1f), range = 1..2, integerOnly = true)
                     NumberField("Frequencia Hz", idleValveFrequencyHz, { idleValveFrequencyHz = it; hasChanges = true }, Modifier.weight(1f))
                 }
                 ToggleField("Inverter direcao", pwmDirectionReverse) {
@@ -139,22 +148,24 @@ internal fun IdleControlScreenDesktop(controller: DesktopSpeeduinoController) {
 internal fun ClosedLoopCorrectionsScreenDesktop(controller: DesktopSpeeduinoController) {
     val config by controller.closedLoopCorrections.collectAsState()
     val strings = LocalStrings.current
-    var sensorType by remember(config) { mutableStateOf(config?.sensorType ?: ClosedLoopSensorType.WIDE_BAND) }
-    var strategy by remember(config) { mutableStateOf(config?.strategy ?: ClosedLoopStrategy.SIMPLE) }
-    var ignitionEventsPerStep by remember(config) { mutableStateOf(config?.ignitionEventsPerStep?.toString() ?: "0") }
-    var authorityPercent by remember(config) { mutableStateOf(config?.authorityPercent?.toString() ?: "0") }
-    var minAfr by remember(config) { mutableStateOf(config?.minAfr?.toString() ?: "14.0") }
-    var maxAfr by remember(config) { mutableStateOf(config?.maxAfr?.toString() ?: "15.0") }
-    var activeAboveCoolantF by remember(config) { mutableStateOf(config?.activeAboveCoolantF?.toString() ?: "70") }
-    var activeAboveRpm by remember(config) { mutableStateOf(config?.activeAboveRpm?.toString() ?: "1200") }
-    var activeBelowTpsPercent by remember(config) { mutableStateOf(config?.activeBelowTpsPercent?.toString() ?: "35.0") }
-    var activeBelowMapKpa by remember(config) { mutableStateOf(config?.activeBelowMapKpa?.toString() ?: "100") }
-    var activeAboveMapKpa by remember(config) { mutableStateOf(config?.activeAboveMapKpa?.toString() ?: "20") }
-    var delayAfterStartSeconds by remember(config) { mutableStateOf(config?.delayAfterStartSeconds?.toString() ?: "5") }
-    var pidProportional by remember(config) { mutableStateOf(config?.pidProportional?.toString() ?: "0") }
-    var pidIntegral by remember(config) { mutableStateOf(config?.pidIntegral?.toString() ?: "0") }
-    var pidDerivative by remember(config) { mutableStateOf(config?.pidDerivative?.toString() ?: "0") }
+    var restoreKey by remember { mutableIntStateOf(0) }
+    var sensorType by remember(config, restoreKey) { mutableStateOf(config?.sensorType ?: ClosedLoopSensorType.WIDE_BAND) }
+    var strategy by remember(config, restoreKey) { mutableStateOf(config?.strategy ?: ClosedLoopStrategy.SIMPLE) }
+    var ignitionEventsPerStep by remember(config, restoreKey) { mutableStateOf(config?.ignitionEventsPerStep?.toString() ?: "0") }
+    var authorityPercent by remember(config, restoreKey) { mutableStateOf(config?.authorityPercent?.toString() ?: "0") }
+    var minAfr by remember(config, restoreKey) { mutableStateOf(config?.minAfr?.toString() ?: "14.0") }
+    var maxAfr by remember(config, restoreKey) { mutableStateOf(config?.maxAfr?.toString() ?: "15.0") }
+    var activeAboveCoolantF by remember(config, restoreKey) { mutableStateOf(config?.activeAboveCoolantF?.toString() ?: "70") }
+    var activeAboveRpm by remember(config, restoreKey) { mutableStateOf(config?.activeAboveRpm?.toString() ?: "1200") }
+    var activeBelowTpsPercent by remember(config, restoreKey) { mutableStateOf(config?.activeBelowTpsPercent?.toString() ?: "35.0") }
+    var activeBelowMapKpa by remember(config, restoreKey) { mutableStateOf(config?.activeBelowMapKpa?.toString() ?: "100") }
+    var activeAboveMapKpa by remember(config, restoreKey) { mutableStateOf(config?.activeAboveMapKpa?.toString() ?: "20") }
+    var delayAfterStartSeconds by remember(config, restoreKey) { mutableStateOf(config?.delayAfterStartSeconds?.toString() ?: "5") }
+    var pidProportional by remember(config, restoreKey) { mutableStateOf(config?.pidProportional?.toString() ?: "0") }
+    var pidIntegral by remember(config, restoreKey) { mutableStateOf(config?.pidIntegral?.toString() ?: "0") }
+    var pidDerivative by remember(config, restoreKey) { mutableStateOf(config?.pidDerivative?.toString() ?: "0") }
     var hasChanges by remember { mutableStateOf(false) }
+    val hasInvalidFields = invalidNumbers(ignitionEventsPerStep, authorityPercent, minAfr, maxAfr, activeAboveCoolantF, activeAboveRpm, activeBelowTpsPercent, activeBelowMapKpa, activeAboveMapKpa, delayAfterStartSeconds, pidProportional, pidIntegral, pidDerivative)
     ReportUnsavedChanges(hasChanges)
 
     LaunchedEffect(Unit) {
@@ -196,7 +207,10 @@ internal fun ClosedLoopCorrectionsScreenDesktop(controller: DesktopSpeeduinoCont
                 )
                 controller.saveClosedLoopCorrections(updated)
             },
-            saveEnabled = hasChanges,
+            saveEnabled = hasChanges && !hasInvalidFields,
+            onRestore = { restoreKey++; hasChanges = false },
+            restoreEnabled = hasChanges,
+            footer = { SaveDisabledReason(hasChanges = hasChanges, dataAvailable = config != null, hasInvalidFields = hasInvalidFields) },
             loadEnabled = config == null || hasChanges
         )
 
@@ -279,6 +293,9 @@ private fun ConfigHeaderCard(
     onSave: () -> Unit,
     saveEnabled: Boolean,
     loadEnabled: Boolean = saveEnabled,
+    onRestore: (() -> Unit)? = null,
+    restoreEnabled: Boolean = false,
+    footer: @Composable () -> Unit = {},
 ) {
     val strings = LocalStrings.current
     Surface(
@@ -296,7 +313,9 @@ private fun ConfigHeaderCard(
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 FilledTonalButton(onClick = onLoad, enabled = loadEnabled) { Text(strings["action.loadEcu"]) }
                 FilledTonalButton(onClick = onSave, enabled = saveEnabled) { Text(strings["action.saveEcu"]) }
+                onRestore?.let { FilledTonalButton(onClick = it, enabled = restoreEnabled) { Text(strings["btn_restore_ecu_values"]) } }
             }
+            footer()
         }
     }
 }

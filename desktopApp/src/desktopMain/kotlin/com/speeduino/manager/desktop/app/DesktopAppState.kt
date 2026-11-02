@@ -25,6 +25,9 @@ internal class DesktopAppState(
     /** A tela atual declarou edições não salvas (ver `ReportUnsavedChanges`). */
     var unsavedChanges by mutableStateOf(false)
 
+    /** Quantos campos a tela alterou (0 = não sabe); o diálogo de descarte mostra o número. */
+    var unsavedCount by mutableStateOf(0)
+
     /** Destino aguardando a confirmação de descarte; `null` = nenhum diálogo. */
     var pendingRoute by mutableStateOf<DesktopRoute?>(null)
         private set
@@ -41,6 +44,7 @@ internal class DesktopAppState(
         val target = pendingRoute ?: return
         pendingRoute = null
         unsavedChanges = false
+        unsavedCount = 0
         route = target
     }
 

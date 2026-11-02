@@ -1,5 +1,11 @@
 package com.speeduino.manager.desktop.feature.configs
 
+import com.speeduino.manager.desktop.ui.rememberEcuLoadState
+import com.speeduino.manager.desktop.ui.EcuLoadProgress
+import com.speeduino.manager.desktop.ui.isOutOfRange
+import com.speeduino.manager.desktop.ui.invalidNumbers
+import com.speeduino.manager.desktop.ui.SaveDisabledReason
+import androidx.compose.runtime.mutableIntStateOf
 import com.speeduino.manager.desktop.ReportUnsavedChanges
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
@@ -69,24 +75,27 @@ import kotlin.math.abs
 internal fun EngineConstantsScreenDesktop(controller: DesktopSpeeduinoController) {
     val constants by controller.engineConstants.collectAsState()
     val strings = LocalStrings.current
-    var reqFuel by remember(constants) { mutableStateOf(constants?.reqFuel?.toString() ?: "6.0") }
-    var batteryVoltage by remember(constants) { mutableStateOf(constants?.batteryVoltage?.toString() ?: "12.0") }
-    var algorithm by remember(constants) { mutableStateOf(constants?.algorithm ?: Algorithm.SPEED_DENSITY) }
-    var squirtsPerCycle by remember(constants) { mutableStateOf(constants?.squirtsPerCycle?.toString() ?: "1") }
-    var injectorStaging by remember(constants) { mutableStateOf(constants?.injectorStaging ?: InjectorStaging.ALTERNATING) }
-    var engineStroke by remember(constants) { mutableStateOf(constants?.engineStroke ?: EngineStroke.FOUR_STROKE) }
-    var numberOfCylinders by remember(constants) { mutableStateOf(constants?.numberOfCylinders?.toString() ?: "4") }
-    var injectorPortType by remember(constants) { mutableStateOf(constants?.injectorPortType ?: InjectorPortType.PORT) }
-    var numberOfInjectors by remember(constants) { mutableStateOf(constants?.numberOfInjectors?.toString() ?: "4") }
-    var engineType by remember(constants) { mutableStateOf(constants?.engineType ?: EngineType.EVEN_FIRE) }
-    var stoich by remember(constants) { mutableStateOf(constants?.stoichiometricRatio?.toString() ?: "14.7") }
-    var injectorLayout by remember(constants) { mutableStateOf(constants?.injectorLayout ?: InjectorLayout.SEQUENTIAL) }
-    var mapSampleMethod by remember(constants) { mutableStateOf(constants?.mapSampleMethod ?: MapSampleMethod.CYCLE_AVERAGE) }
-    var mapSwitchPoint by remember(constants) { mutableStateOf(constants?.mapSwitchPoint?.toString() ?: "4000") }
-    var channel2Angle by remember(constants) { mutableStateOf(constants?.channel2Angle?.toString() ?: "180") }
-    var channel3Angle by remember(constants) { mutableStateOf(constants?.channel3Angle?.toString() ?: "270") }
-    var channel4Angle by remember(constants) { mutableStateOf(constants?.channel4Angle?.toString() ?: "360") }
+    var restoreKey by remember { mutableIntStateOf(0) }
+    val loadState = rememberEcuLoadState(constants)
+    var reqFuel by remember(constants, restoreKey) { mutableStateOf(constants?.reqFuel?.toString() ?: "6.0") }
+    var batteryVoltage by remember(constants, restoreKey) { mutableStateOf(constants?.batteryVoltage?.toString() ?: "12.0") }
+    var algorithm by remember(constants, restoreKey) { mutableStateOf(constants?.algorithm ?: Algorithm.SPEED_DENSITY) }
+    var squirtsPerCycle by remember(constants, restoreKey) { mutableStateOf(constants?.squirtsPerCycle?.toString() ?: "1") }
+    var injectorStaging by remember(constants, restoreKey) { mutableStateOf(constants?.injectorStaging ?: InjectorStaging.ALTERNATING) }
+    var engineStroke by remember(constants, restoreKey) { mutableStateOf(constants?.engineStroke ?: EngineStroke.FOUR_STROKE) }
+    var numberOfCylinders by remember(constants, restoreKey) { mutableStateOf(constants?.numberOfCylinders?.toString() ?: "4") }
+    var injectorPortType by remember(constants, restoreKey) { mutableStateOf(constants?.injectorPortType ?: InjectorPortType.PORT) }
+    var numberOfInjectors by remember(constants, restoreKey) { mutableStateOf(constants?.numberOfInjectors?.toString() ?: "4") }
+    var engineType by remember(constants, restoreKey) { mutableStateOf(constants?.engineType ?: EngineType.EVEN_FIRE) }
+    var stoich by remember(constants, restoreKey) { mutableStateOf(constants?.stoichiometricRatio?.toString() ?: "14.7") }
+    var injectorLayout by remember(constants, restoreKey) { mutableStateOf(constants?.injectorLayout ?: InjectorLayout.SEQUENTIAL) }
+    var mapSampleMethod by remember(constants, restoreKey) { mutableStateOf(constants?.mapSampleMethod ?: MapSampleMethod.CYCLE_AVERAGE) }
+    var mapSwitchPoint by remember(constants, restoreKey) { mutableStateOf(constants?.mapSwitchPoint?.toString() ?: "4000") }
+    var channel2Angle by remember(constants, restoreKey) { mutableStateOf(constants?.channel2Angle?.toString() ?: "180") }
+    var channel3Angle by remember(constants, restoreKey) { mutableStateOf(constants?.channel3Angle?.toString() ?: "270") }
+    var channel4Angle by remember(constants, restoreKey) { mutableStateOf(constants?.channel4Angle?.toString() ?: "360") }
     var hasChanges by remember { mutableStateOf(false) }
+    val hasInvalidFields = invalidNumbers(reqFuel, batteryVoltage, squirtsPerCycle, numberOfCylinders, numberOfInjectors, stoich, mapSwitchPoint, channel2Angle, channel3Angle, channel4Angle)
     ReportUnsavedChanges(hasChanges)
 
     LaunchedEffect(constants) {
@@ -117,7 +126,7 @@ internal fun EngineConstantsScreenDesktop(controller: DesktopSpeeduinoController
                 )
                 Text(strings["label.engineConstantsSubtitle"], style = MaterialTheme.typography.bodyMedium)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    FilledTonalButton(onClick = controller::loadEngineConstants, enabled = constants == null || hasChanges) { Text(strings["action.loadEcu"]) }
+                    FilledTonalButton(onClick = { loadState.start(); controller.loadEngineConstants() }, enabled = constants == null || hasChanges) { Text(strings["action.loadEcu"]) }
                     FilledTonalButton(
                         onClick = {
                             val updated = EngineConstants(
@@ -141,9 +150,12 @@ internal fun EngineConstantsScreenDesktop(controller: DesktopSpeeduinoController
                             )
                             controller.saveEngineConstants(updated)
                         },
-                        enabled = hasChanges
+                        enabled = hasChanges && !hasInvalidFields
                     ) { Text(strings["action.saveEcu"]) }
+                    FilledTonalButton(onClick = { restoreKey++; hasChanges = false }, enabled = hasChanges) { Text(strings["btn_restore_ecu_values"]) }
                 }
+                EcuLoadProgress(loadState)
+                SaveDisabledReason(hasChanges = hasChanges, dataAvailable = constants != null, hasInvalidFields = hasInvalidFields)
             }
         }
 
@@ -261,20 +273,23 @@ internal fun EngineConstantsScreenDesktop(controller: DesktopSpeeduinoController
 internal fun TriggerSettingsScreenDesktop(controller: DesktopSpeeduinoController) {
     val settings by controller.triggerSettings.collectAsState()
     val strings = LocalStrings.current
-    var triggerAngle by remember(settings) { mutableStateOf(settings?.triggerAngleDeg?.toString() ?: "0") }
-    var triggerMultiplier by remember(settings) { mutableStateOf(settings?.triggerAngleMultiplier?.toString() ?: "1") }
-    var triggerPattern by remember(settings) { mutableStateOf(settings?.triggerPattern ?: 0) }
-    var baseTeeth by remember(settings) { mutableStateOf(settings?.primaryBaseTeeth?.toString() ?: "36") }
-    var missingTeeth by remember(settings) { mutableStateOf(settings?.missingTeeth?.toString() ?: "1") }
-    var primarySpeed by remember(settings) { mutableStateOf(settings?.primaryTriggerSpeed ?: TriggerSettings.TriggerSpeed.CRANK) }
-    var triggerEdge by remember(settings) { mutableStateOf(settings?.triggerEdge ?: TriggerSettings.SignalEdge.RISING) }
-    var secondaryEdge by remember(settings) { mutableStateOf(settings?.secondaryTriggerEdge ?: TriggerSettings.SignalEdge.RISING) }
-    var secondaryType by remember(settings) { mutableStateOf(settings?.secondaryTriggerType ?: 0) }
-    var phaseHigh by remember(settings) { mutableStateOf(settings?.levelForFirstPhaseHigh ?: false) }
-    var skipRevs by remember(settings) { mutableStateOf(settings?.skipRevolutions?.toString() ?: "0") }
-    var filter by remember(settings) { mutableStateOf(settings?.triggerFilter ?: TriggerSettings.TriggerFilter.OFF) }
-    var reSyncEveryCycle by remember(settings) { mutableStateOf(settings?.reSyncEveryCycle ?: false) }
+    var restoreKey by remember { mutableIntStateOf(0) }
+    val loadState = rememberEcuLoadState(settings)
+    var triggerAngle by remember(settings, restoreKey) { mutableStateOf(settings?.triggerAngleDeg?.toString() ?: "0") }
+    var triggerMultiplier by remember(settings, restoreKey) { mutableStateOf(settings?.triggerAngleMultiplier?.toString() ?: "1") }
+    var triggerPattern by remember(settings, restoreKey) { mutableStateOf(settings?.triggerPattern ?: 0) }
+    var baseTeeth by remember(settings, restoreKey) { mutableStateOf(settings?.primaryBaseTeeth?.toString() ?: "36") }
+    var missingTeeth by remember(settings, restoreKey) { mutableStateOf(settings?.missingTeeth?.toString() ?: "1") }
+    var primarySpeed by remember(settings, restoreKey) { mutableStateOf(settings?.primaryTriggerSpeed ?: TriggerSettings.TriggerSpeed.CRANK) }
+    var triggerEdge by remember(settings, restoreKey) { mutableStateOf(settings?.triggerEdge ?: TriggerSettings.SignalEdge.RISING) }
+    var secondaryEdge by remember(settings, restoreKey) { mutableStateOf(settings?.secondaryTriggerEdge ?: TriggerSettings.SignalEdge.RISING) }
+    var secondaryType by remember(settings, restoreKey) { mutableStateOf(settings?.secondaryTriggerType ?: 0) }
+    var phaseHigh by remember(settings, restoreKey) { mutableStateOf(settings?.levelForFirstPhaseHigh ?: false) }
+    var skipRevs by remember(settings, restoreKey) { mutableStateOf(settings?.skipRevolutions?.toString() ?: "0") }
+    var filter by remember(settings, restoreKey) { mutableStateOf(settings?.triggerFilter ?: TriggerSettings.TriggerFilter.OFF) }
+    var reSyncEveryCycle by remember(settings, restoreKey) { mutableStateOf(settings?.reSyncEveryCycle ?: false) }
     var hasChanges by remember { mutableStateOf(false) }
+    val hasInvalidFields = invalidNumbers(triggerAngle, triggerMultiplier, baseTeeth, missingTeeth, skipRevs)
     ReportUnsavedChanges(hasChanges)
 
     LaunchedEffect(settings) {
@@ -301,7 +316,7 @@ internal fun TriggerSettingsScreenDesktop(controller: DesktopSpeeduinoController
                 Text(strings["label.triggerTitle"], style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Medium)
                 Text(strings["label.triggerSubtitle"], style = MaterialTheme.typography.bodyMedium)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    FilledTonalButton(onClick = controller::loadTriggerSettings, enabled = settings == null || hasChanges) { Text(strings["action.loadEcu"]) }
+                    FilledTonalButton(onClick = { loadState.start(); controller.loadTriggerSettings() }, enabled = settings == null || hasChanges) { Text(strings["action.loadEcu"]) }
                     FilledTonalButton(
                         onClick = {
                             val updated = TriggerSettings(
@@ -321,9 +336,12 @@ internal fun TriggerSettingsScreenDesktop(controller: DesktopSpeeduinoController
                             )
                             controller.saveTriggerSettings(updated)
                         },
-                        enabled = hasChanges
+                        enabled = hasChanges && !hasInvalidFields
                     ) { Text(strings["action.saveEcu"]) }
+                    FilledTonalButton(onClick = { restoreKey++; hasChanges = false }, enabled = hasChanges) { Text(strings["btn_restore_ecu_values"]) }
                 }
+                EcuLoadProgress(loadState)
+                SaveDisabledReason(hasChanges = hasChanges, dataAvailable = settings != null, hasInvalidFields = hasInvalidFields)
             }
         }
 

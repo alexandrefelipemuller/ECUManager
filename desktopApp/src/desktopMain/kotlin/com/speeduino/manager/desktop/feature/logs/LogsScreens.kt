@@ -457,6 +457,7 @@ internal fun LogAnalyzerScreenDesktop(controller: DesktopSpeeduinoController) {
 
 
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        com.speeduino.manager.desktop.ui.FirstUseHint("tuning_assistant", strings["hint_tuning_assistant"])
         Surface(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(18.dp),
@@ -681,6 +682,7 @@ internal fun BeforeAfterScreenDesktop(controller: DesktopSpeeduinoController) {
 
 
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        com.speeduino.manager.desktop.ui.FirstUseHint("before_after_compare", strings["hint_before_after_compare"])
         Surface(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(18.dp),
