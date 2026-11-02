@@ -31,7 +31,14 @@ class Strings(private val entries: Map<String, String>) {
     operator fun get(key: String): String = entries[key] ?: key
 
     fun format(key: String, vararg args: Any): String {
-        return String.format(Locale.US, get(key), *args)
+        val template = get(key)
+        // Placeholder com tipo errado (ex.: %d recebendo String) lança IllegalFormatException; um erro de
+        // formatação em texto de UI/log não pode derrubar a operação: cai para o template cru + argumentos.
+        return try {
+            String.format(Locale.US, template, *args)
+        } catch (e: java.util.IllegalFormatException) {
+            if (args.isEmpty()) template else "$template ${args.joinToString(" ")}"
+        }
     }
 }
 

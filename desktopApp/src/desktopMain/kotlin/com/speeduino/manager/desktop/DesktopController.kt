@@ -2002,17 +2002,39 @@ internal class DesktopSpeeduinoController(
         loadVeTable(1)
     }
 
-    fun applyGeneratedBaseMap(map: GeneratedBaseMap, writeTables: Boolean = true, writeConstants: Boolean = true) {
+    fun applyGeneratedBaseMap(generated: GeneratedBaseMap, writeTables: Boolean = true, writeConstants: Boolean = true) {
         scope.launch(Dispatchers.IO) {
             try {
+                var map = generated
                 withPausedLiveDataStream { activeClient ->
+                    var constantsToWrite: io.ecucore.model.EngineConstants? = generated.engineConstants
+                    when (activeClient.getFirmwareInfoCached()?.family) {
+                        io.ecucore.model.EcuFamily.MS3 -> map = BaseMapAdapter.adaptToMs3(generated)
+                        io.ecucore.model.EcuFamily.MS2, io.ecucore.model.EcuFamily.MEGASPEED -> {
+                            // O formato das tabelas e as Engine Constants vigentes vêm da própria ECU, nunca de padrões.
+                            if (writeTables) {
+                                val ve = runCatching { activeClient.readVeTable(1) }.getOrNull()
+                                val ign = runCatching { activeClient.readIgnitionTable(1) }.getOrNull()
+                                val afr = runCatching { activeClient.readAfrTable() }.getOrNull()
+                                if (ve == null || ign == null || afr == null) {
+                                    throw IllegalStateException("Não foi possível ler o formato das tabelas da ECU; mapa inicial não gravado.")
+                                }
+                                map = BaseMapAdapter.adaptToEcuTables(generated, ve, ign, afr)
+                            }
+                            constantsToWrite = runCatching { activeClient.readEngineConstants() }.getOrNull()
+                                ?.let { BaseMapAdapter.mergeMs2EngineConstants(generated.engineConstants, it) }
+                        }
+                        io.ecucore.model.EcuFamily.RUSEFI -> constantsToWrite = null
+                        else -> Unit
+                    }
                     if (writeTables) {
                         activeClient.writeVeTable(map.veTable)
                         activeClient.writeIgnitionTable(map.ignitionTable)
                         activeClient.writeAfrTable(map.afrTable)
                     }
-                    if (writeConstants) {
-                        activeClient.writeEngineConstants(map.engineConstants)
+                    if (writeConstants && constantsToWrite != null) {
+                        activeClient.writeEngineConstants(constantsToWrite)
+                        map = map.copy(engineConstants = constantsToWrite)
                     }
                 }
                 if (writeTables) {
