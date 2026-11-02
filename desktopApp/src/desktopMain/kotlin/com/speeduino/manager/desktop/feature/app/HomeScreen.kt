@@ -187,14 +187,14 @@ internal fun HomeScreenDesktop(
         }
 
         KioskPanelCard(strings["home.exploreTitle"]) {
-            KioskFeatureCard(strings[DesktopRoute.Dashboard.labelKey], strings["home.dashboardDescription"], Icons.Default.Dashboard) { openRoute(DesktopRoute.Dashboard) }
-            KioskFeatureCard(strings[DesktopRoute.Ecu.labelKey], strings["home.fuelDescription"], Icons.Default.TableChart) { openRoute(DesktopRoute.Ecu) }
-            KioskFeatureCard(strings[DesktopRoute.Tools.labelKey], strings["home.toolsDescription"], Icons.Default.Settings) { openRoute(DesktopRoute.Tools) }
+            KioskFeatureCard(strings[DesktopRoute.Dashboard.labelKey], strings["home.dashboardDescription"], Icons.Default.Dashboard, large = true) { openRoute(DesktopRoute.Dashboard) }
+            KioskFeatureCard(strings[DesktopRoute.Ecu.labelKey], strings["home.fuelDescription"], Icons.Default.TableChart, large = true) { openRoute(DesktopRoute.Ecu) }
+            KioskFeatureCard(strings[DesktopRoute.Tools.labelKey], strings["home.toolsDescription"], Icons.Default.Settings, large = true) { openRoute(DesktopRoute.Tools) }
         }
 
         KioskPanelCard(strings["home.setupTitle"]) {
-            KioskFeatureCard(strings[DesktopRoute.Connection.labelKey], strings["home.connectionDescription"], Icons.Default.Cable) { openRoute(DesktopRoute.Connection) }
-            KioskFeatureCard(strings[DesktopRoute.Settings.labelKey], strings["home.settingsDescription"], Icons.Default.Settings) { openRoute(DesktopRoute.Settings) }
+            KioskFeatureCard(strings[DesktopRoute.Connection.labelKey], strings["home.connectionDescription"], Icons.Default.Cable, large = true) { openRoute(DesktopRoute.Connection) }
+            KioskFeatureCard(strings[DesktopRoute.Settings.labelKey], strings["home.settingsDescription"], Icons.Default.Settings, large = true) { openRoute(DesktopRoute.Settings) }
         }
 
         if (hasFirstBootGaps) {
