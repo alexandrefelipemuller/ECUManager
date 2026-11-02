@@ -24,7 +24,8 @@ internal fun LogsRouteHost(
     onOpenVirtualDyno: () -> Unit,
     onOpenSettings: () -> Unit,
     onOpenInstitutional: () -> Unit,
-    onOpenHistoricalLogViewer: (String) -> Unit
+    onOpenHistoricalLogViewer: (String) -> Unit,
+    onOpenRestorePoints: () -> Unit = {}
 ) {
     when (route) {
         DesktopRoute.Tools,
@@ -38,8 +39,10 @@ internal fun LogsRouteHost(
             onOpenVirtualDyno = onOpenVirtualDyno,
             onOpenSettings = onOpenSettings,
             onOpenInstitutional = onOpenInstitutional,
-            onOpenHistoricalLogViewer = onOpenHistoricalLogViewer
+            onOpenHistoricalLogViewer = onOpenHistoricalLogViewer,
+            onOpenRestorePoints = onOpenRestorePoints
         )
+        DesktopRoute.RestorePoints -> com.speeduino.manager.desktop.feature.app.RestorePointsScreenDesktop(controller)
         DesktopRoute.RealTimeMonitor -> RealTimeMonitorScreenDesktop(controller, liveData)
         DesktopRoute.LogViewer -> LogViewerScreenDesktop(controller)
         DesktopRoute.LogAnalyzer -> LogAnalyzerScreenDesktop(controller)

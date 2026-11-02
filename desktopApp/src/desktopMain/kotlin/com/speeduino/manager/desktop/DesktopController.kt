@@ -1090,15 +1090,83 @@ internal class DesktopSpeeduinoController(
         }
     }
 
+    private val restorePointStore = RestorePointStore()
+    private val _restorePoints = MutableStateFlow(restorePointStore.list())
+    val restorePoints = _restorePoints.asStateFlow()
+
+    private fun refreshRestorePoints() {
+        _restorePoints.value = restorePointStore.list()
+    }
+
+    /** Baixa a configuração atual da ECU (se conectada) e a guarda como ponto de restauração. */
+    internal fun createRestorePoint(name: String?) {
+        scope.launch(Dispatchers.IO) {
+            if (_connectionState.value.isConnected) {
+                if (!downloadAllConfigs(autoRestartStream = true)) return@launch
+            }
+            val source = localSessionDir ?: configManager.latestSavedConfig()
+            if (source == null) {
+                _configState.value = _configState.value.copy(isBusy = false, message = LocalizationManager.currentStrings()["restore_points_create_failed"])
+                return@launch
+            }
+            val info = _firmwareInfo.value
+            runCatching {
+                restorePointStore.create(source, name, info?.family?.name, info?.productString ?: info?.signature)
+            }.onSuccess {
+                refreshRestorePoints()
+                _configState.value = _configState.value.copy(isBusy = false, message = LocalizationManager.currentStrings()["restore_points_created"])
+            }.onFailure {
+                _configState.value = _configState.value.copy(isBusy = false, message = LocalizationManager.currentStrings()["restore_points_create_failed"] + " " + (it.message ?: ""))
+            }
+        }
+    }
+
+    /** Grava o ponto de restauração na ECU, com backup de segurança e checagem de CRC32 (ecu-core). */
+    internal fun restoreFromRestorePoint(point: RestorePoint) {
+        scope.launch(Dispatchers.IO) {
+            val activeClient = client
+            if (activeClient == null || !_connectionState.value.isConnected) {
+                _configState.value = _configState.value.copy(isBusy = false, message = "ECU não conectada.")
+                return@launch
+            }
+            _configState.value = _configState.value.copy(isBusy = true, message = "Restaurando ponto de restauração...")
+            try {
+                syncService.restoreConfigToEcu(
+                    client = activeClient,
+                    sessionDir = point.dir,
+                    stopOnRangeErr = true,
+                    restartStreamIntervalMs = _streamIntervalMs.value,
+                    safetyBackup = true,
+                )
+                ecuSessionDir = point.dir
+                localSessionDir = point.dir
+                loadTablesFromSession(point.dir)
+                _configState.value = _configState.value.copy(isBusy = false, message = "Ponto de restauração aplicado na ECU.")
+            } catch (e: Exception) {
+                _configState.value = _configState.value.copy(isBusy = false, message = "Falha ao restaurar: ${e.message}")
+            }
+        }
+    }
+
+    internal fun renameRestorePoint(point: RestorePoint, name: String) {
+        restorePointStore.rename(point.id, name)
+        refreshRestorePoints()
+    }
+
+    internal fun deleteRestorePoint(point: RestorePoint) {
+        restorePointStore.delete(point.id)
+        refreshRestorePoints()
+    }
+
     fun downloadAllConfigs() {
         scope.launch(Dispatchers.IO) {
             downloadAllConfigs(autoRestartStream = true)
         }
     }
 
-    fun exportLatestConfig(targetFile: File) {
+    fun exportLatestConfig(targetFile: File, sessionDirOverride: File? = null) {
         scope.launch(Dispatchers.IO) {
-            val sessionDir = localSessionDir ?: configManager.latestSavedConfig()
+            val sessionDir = sessionDirOverride ?: localSessionDir ?: configManager.latestSavedConfig()
             if (sessionDir == null) {
                 _configState.value = _configState.value.copy(
                     isBusy = false,
@@ -1128,9 +1196,9 @@ internal class DesktopSpeeduinoController(
         }
     }
 
-    fun exportLatestConfigMsq(targetFile: File) {
+    fun exportLatestConfigMsq(targetFile: File, sessionDirOverride: File? = null) {
         scope.launch(Dispatchers.IO) {
-            val sessionDir = localSessionDir ?: configManager.latestSavedConfig()
+            val sessionDir = sessionDirOverride ?: localSessionDir ?: configManager.latestSavedConfig()
             if (sessionDir == null) {
                 _configState.value = _configState.value.copy(
                     isBusy = false,

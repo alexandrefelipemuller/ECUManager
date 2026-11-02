@@ -54,7 +54,8 @@ internal fun LogsEcuToolsScreenDesktop(
     onOpenVirtualDyno: () -> Unit,
     onOpenSettings: () -> Unit,
     onOpenInstitutional: () -> Unit,
-    onOpenHistoricalLogViewer: (String) -> Unit
+    onOpenHistoricalLogViewer: (String) -> Unit,
+    onOpenRestorePoints: () -> Unit = {}
 ) {
     val strings = LocalStrings.current
     KioskScreenScaffold(
@@ -84,6 +85,7 @@ internal fun LogsEcuToolsScreenDesktop(
             KioskFeatureCard(strings["route.virtualDyno"], strings["label.toolsVirtualDynoDesc"], icon = Icons.Default.Speed, large = true, onClick = onOpenVirtualDyno)
         }
         KioskPanelCard(strings["nav.sectionMore"]) {
+            KioskFeatureCard(strings["restore_points_title"], strings["restore_points_description"], icon = Icons.Default.FolderOpen, large = true, onClick = onOpenRestorePoints)
             KioskFeatureCard(strings["app.settingsTitle"], icon = Icons.Default.Settings, large = true, onClick = onOpenSettings)
             KioskFeatureCard(strings["label.institutionalTitle"], icon = Icons.Default.Info, large = true, onClick = onOpenInstitutional)
         }

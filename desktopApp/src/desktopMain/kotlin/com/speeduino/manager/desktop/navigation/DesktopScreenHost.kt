@@ -197,6 +197,7 @@ internal fun ScreenHost(
             onBack = { onOpenRoute(DesktopRoute.EngineSetup) },
         )
         DesktopRoute.Tools,
+        DesktopRoute.RestorePoints,
         DesktopRoute.LogsEcuTools,
         DesktopRoute.LogViewer,
         DesktopRoute.RealTimeMonitor,
@@ -215,7 +216,8 @@ internal fun ScreenHost(
             onOpenVirtualDyno = { onOpenRoute(DesktopRoute.VirtualDyno) },
             onOpenSettings = onOpenSettings,
             onOpenInstitutional = onOpenInstitutional,
-            onOpenHistoricalLogViewer = onOpenHistoricalLogViewer
+            onOpenHistoricalLogViewer = onOpenHistoricalLogViewer,
+            onOpenRestorePoints = { onOpenRoute(DesktopRoute.RestorePoints) }
         )
     }
 }
