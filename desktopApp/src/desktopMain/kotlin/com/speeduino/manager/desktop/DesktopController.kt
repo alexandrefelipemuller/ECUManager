@@ -48,14 +48,15 @@ import io.ecucore.tuning.TuningStrategy
 import com.speeduino.manager.telemetry.ConnectionDiagnosticsLogger
 import com.speeduino.manager.telemetry.DiagnosticsFlags
 import com.speeduino.manager.telemetry.Obd2InvestigationRecorder
-import com.speeduino.manager.transport.AutoDetectEcuTransport
+import io.ecucore.transport.AutoDetectEcuTransport
 import com.speeduino.manager.transport.Obd2OptimizationProfileStore
-import com.speeduino.manager.transport.Obd2Transport
-import com.speeduino.manager.transport.PromotingObd2Transport
+import io.ecucore.transport.Obd2Transport
+import io.ecucore.transport.PromotingObd2Transport
 import com.speeduino.manager.transport.PsaConnectionSessionStore
-import com.speeduino.manager.transport.PsaTransport
-import com.speeduino.manager.transport.RenaultTransport
-import com.speeduino.manager.transport.VagTransport
+import io.ecucore.transport.PsaTransport
+import io.ecucore.transport.RenaultTransport
+import io.ecucore.transport.Sirius32Transport
+import io.ecucore.transport.VagTransport
 import io.ecucore.transport.EcuTransport
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -419,13 +420,31 @@ internal class DesktopSpeeduinoController(
         val investigationRecorder = Obd2InvestigationRecorder()
         return when (_desktopSettings.value.protocol) {
             AppProtocol.ELM327_OBD2 -> {
-                val obd2Transport = Obd2Transport(
+                // Mesma cadeia de detecção do app Android (MainActivity).
+                val sirius32Transport = Sirius32Transport(
                     connection = connection,
                     onDataReceived = callbacks.onDataReceived,
                     onConnectionStateChanged = callbacks.onConnectionStateChanged,
                     onError = callbacks.onError,
-                    profileStore = profileStore,
                     investigationRecorder = investigationRecorder,
+                    diagnosticsSink = ConnectionDiagnosticsLogger,
+                )
+                val renaultTransport = RenaultTransport(
+                    connection = connection,
+                    onDataReceived = callbacks.onDataReceived,
+                    onConnectionStateChanged = callbacks.onConnectionStateChanged,
+                    onError = callbacks.onError,
+                    obd2ProfileStore = profileStore,
+                    investigationRecorder = investigationRecorder,
+                    diagnosticsSink = ConnectionDiagnosticsLogger,
+                )
+                val vagTransport = VagTransport(
+                    connection = connection,
+                    onDataReceived = callbacks.onDataReceived,
+                    onConnectionStateChanged = callbacks.onConnectionStateChanged,
+                    onError = callbacks.onError,
+                    investigationRecorder = investigationRecorder,
+                    diagnosticsSink = ConnectionDiagnosticsLogger,
                 )
                 val psaTransport = PsaTransport(
                     connection = connection,
@@ -436,37 +455,42 @@ internal class DesktopSpeeduinoController(
                     sessionStore = sessionStore,
                     investigationRecorder = investigationRecorder,
                     enableInvestigationCampaign = DiagnosticsFlags.ENABLE_ECU_INVESTIGATION,
+                    diagnosticsSink = ConnectionDiagnosticsLogger,
                 )
-                val renaultTransport = RenaultTransport(
+                val obd2Transport = Obd2Transport(
                     connection = connection,
                     onDataReceived = callbacks.onDataReceived,
                     onConnectionStateChanged = callbacks.onConnectionStateChanged,
                     onError = callbacks.onError,
-                    obd2ProfileStore = profileStore,
+                    profileStore = profileStore,
                     investigationRecorder = investigationRecorder,
-                )
-                val vagTransport = VagTransport(
-                    connection = connection,
-                    onDataReceived = callbacks.onDataReceived,
-                    onConnectionStateChanged = callbacks.onConnectionStateChanged,
-                    onError = callbacks.onError,
-                    investigationRecorder = investigationRecorder,
+                    diagnosticsSink = ConnectionDiagnosticsLogger,
                 )
                 val promotingObd2Transport = PromotingObd2Transport(
                     genericTransport = obd2Transport,
                     psaTransport = psaTransport,
+                    renaultTransport = renaultTransport,
+                    diagnosticsSink = ConnectionDiagnosticsLogger,
+                )
+                val sirius32OrRenaultTransport = AutoDetectEcuTransport(
+                    primaryTransport = sirius32Transport,
+                    obd2FallbackTransport = renaultTransport,
+                    diagnosticsSink = ConnectionDiagnosticsLogger,
                 )
                 val renaultPsaTransport = AutoDetectEcuTransport(
-                    primaryTransport = renaultTransport,
+                    primaryTransport = sirius32OrRenaultTransport,
                     obd2FallbackTransport = psaTransport,
+                    diagnosticsSink = ConnectionDiagnosticsLogger,
                 )
                 val vagRenaultPsaTransport = AutoDetectEcuTransport(
                     primaryTransport = vagTransport,
                     obd2FallbackTransport = renaultPsaTransport,
+                    diagnosticsSink = ConnectionDiagnosticsLogger,
                 )
                 AutoDetectEcuTransport(
                     primaryTransport = promotingObd2Transport,
                     obd2FallbackTransport = vagRenaultPsaTransport,
+                    diagnosticsSink = ConnectionDiagnosticsLogger,
                 )
             }
             AppProtocol.MS_PROTOCOL -> EcuClient(

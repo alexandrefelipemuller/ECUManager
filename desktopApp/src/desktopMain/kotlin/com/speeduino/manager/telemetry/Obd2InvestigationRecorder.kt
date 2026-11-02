@@ -1,6 +1,7 @@
 package com.speeduino.manager.telemetry
 
 import io.ecucore.EcuLiveData
+import io.ecucore.transport.Obd2InvestigationSink
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
@@ -18,7 +19,7 @@ import java.util.zip.ZipOutputStream
  */
 class Obd2InvestigationRecorder(
     private val baseDir: File = File(System.getProperty("user.home"), ".speeduino-manager-desktop"),
-) {
+) : Obd2InvestigationSink {
     private val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.US)
     private val dirFormatter = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.US)
     private val lock = Any()
@@ -71,9 +72,9 @@ class Obd2InvestigationRecorder(
         }
     }
 
-    fun startSession(
+    override fun startSession(
         transport: String,
-        metadataExtras: Map<String, String> = emptyMap(),
+        metadataExtras: Map<String, String>,
     ) {
         synchronized(lock) {
             closeSession(mapOf("closed_reason" to "superseded"))
@@ -101,7 +102,7 @@ class Obd2InvestigationRecorder(
         }
     }
 
-    fun closeSession(summary: Map<String, String> = emptyMap()) {
+    override fun closeSession(summary: Map<String, String>) {
         synchronized(lock) {
             val dir = sessionDir ?: return
             val closedAt = System.currentTimeMillis()
@@ -123,7 +124,7 @@ class Obd2InvestigationRecorder(
         }
     }
 
-    fun info(stage: String, message: String) {
+    override fun info(stage: String, message: String) {
         synchronized(lock) {
             val file = traceFile ?: return
             val timestamp = System.currentTimeMillis()
@@ -131,13 +132,13 @@ class Obd2InvestigationRecorder(
         }
     }
 
-    fun recordCommand(
+    override fun recordCommand(
         transport: String,
         command: String,
         response: String,
         timeoutMs: Long,
         elapsedMs: Long,
-        extra: Map<String, String> = emptyMap(),
+        extra: Map<String, String>,
     ) {
         synchronized(lock) {
             val trace = traceFile ?: return
@@ -179,10 +180,10 @@ class Obd2InvestigationRecorder(
         }
     }
 
-    fun recordSample(
+    override fun recordSample(
         source: String,
         sample: EcuLiveData,
-        extras: Map<String, String> = emptyMap(),
+        extras: Map<String, String>,
     ) {
         synchronized(lock) {
             val csv = sampleFile ?: return
@@ -267,13 +268,13 @@ class Obd2InvestigationRecorder(
         }
     }
 
-    fun recordProprietaryFrame(
+    override fun recordProprietaryFrame(
         source: String,
         cycle: Long,
         command: String,
         rawHex: String,
         bytes: List<Int>,
-        extras: Map<String, String> = emptyMap(),
+        extras: Map<String, String>,
     ) {
         recordProprietaryFrame(
             transport = source,
@@ -283,7 +284,7 @@ class Obd2InvestigationRecorder(
         )
     }
 
-    fun updateMetadata(key: String, value: Any?) {
+    override fun updateMetadata(key: String, value: Any?) {
         synchronized(lock) {
             metadata.put(key, value)
             writeMetadataLocked()

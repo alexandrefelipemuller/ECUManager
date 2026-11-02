@@ -1,6 +1,7 @@
 package com.speeduino.manager.telemetry
 
 import android.util.Log
+import io.ecucore.transport.ConnectionDiagnosticsSink
 import java.io.PrintWriter
 import java.io.StringWriter
 import java.text.SimpleDateFormat
@@ -16,14 +17,14 @@ data class ConnectionLogEntry(
     val message: String,
 )
 
-object ConnectionDiagnosticsLogger {
+object ConnectionDiagnosticsLogger : ConnectionDiagnosticsSink {
     private const val TAG = "ConnDiag"
     private const val MAX_ENTRIES = 200
 
     private val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.US)
     private val entries = ArrayDeque<ConnectionLogEntry>()
 
-    fun log(transport: String, state: String, message: String) {
+    override fun log(transport: String, state: String, message: String) {
         val entry = ConnectionLogEntry(
             timestampMs = System.currentTimeMillis(),
             transport = transport,
@@ -35,7 +36,7 @@ object ConnectionDiagnosticsLogger {
         Log.d(TAG, format(entry))
     }
 
-    fun logError(transport: String, state: String, message: String, throwable: Throwable? = null) {
+    override fun logError(transport: String, state: String, message: String, throwable: Throwable?) {
         log(transport, state, message)
         if (throwable != null) {
             val stack = stackTrace(throwable)
