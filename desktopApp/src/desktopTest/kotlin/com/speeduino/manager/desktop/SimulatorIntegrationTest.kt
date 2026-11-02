@@ -91,6 +91,27 @@ class SimulatorIntegrationTest {
                     listOf("rpm","map","coolantRaw","iatRaw","tps","batteryVoltage","advance","afr","afrTarget","targetLambda","lambda","vss","candidateGear")
                         .forEach { sig -> com.speeduino.manager.desktop.realdash.resolveRealDashSignal(live0, sig) }
                 }
+                // Exportação de log (CSV/MSL) com dados ao vivo reais: colunas alinhadas e canais da ECU pelo nome.
+                run {
+                    val entries = (0 until 3).map { i ->
+                        io.ecucore.model.logging.LiveLogEntry.fromLiveData(runBlocking { client.readLiveData() }, i * 100L)
+                    }
+                    val snap = io.ecucore.model.logging.LiveLogSnapshot(
+                        id = "it", startedAtMs = 0, stoppedAtMs = 200, sampleIntervalMs = 100, entries = entries,
+                    )
+                    val csv = java.io.StringWriter().also {
+                        io.ecucore.model.logging.LiveLogExporter.write(it, io.ecucore.model.logging.LiveLogExportFormat.CSV, snap)
+                    }.toString().trim().lines()
+                    assertEquals(1 + entries.size, csv.size)
+                    val header = csv.first().split(",")
+                    assertTrue("rpm" in header, "CSV sem a coluna rpm: $header")
+                    csv.drop(1).forEach { assertEquals(header.size, it.split(",").size) }
+                    val msl = java.io.StringWriter().also {
+                        io.ecucore.model.logging.LiveLogExporter.write(it, io.ecucore.model.logging.LiveLogExportFormat.MSL, snap)
+                    }.toString().lines()
+                    assertTrue(msl[2].startsWith("Time\t"))
+                }
+
                 if (speeduinoGuards) { // o simulador MS2 não injeta velocidade
                     val live = runBlocking { client.readLiveData() }
                     kotlin.test.assertNotNull(

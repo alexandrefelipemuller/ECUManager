@@ -16,12 +16,14 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -65,10 +67,9 @@ import io.ecucore.EcuLiveData
 import io.ecucore.compare.LogCompareResult
 import io.ecucore.compare.LogHeatCellState
 import com.speeduino.manager.desktop.DesktopSpeeduinoController
-import com.speeduino.manager.desktop.DesktopLogExportFormat
-import com.speeduino.manager.desktop.DefaultSelectedLogSignals
+import io.ecucore.model.logging.LiveLogExportFormat
+import io.ecucore.model.logging.LiveLogExporter
 import com.speeduino.manager.desktop.LocalStrings
-import com.speeduino.manager.desktop.LogExportSignals
 import com.speeduino.manager.desktop.ui.InfoRow
 import com.speeduino.manager.desktop.ui.NumberField
 import com.speeduino.manager.desktop.ui.ToggleField
@@ -97,7 +98,6 @@ internal fun RealTimeMonitorScreenDesktop(
     val intervalMs by controller.streamIntervalMs.collectAsState()
     var selectedInterval by remember(intervalMs) { mutableStateOf(intervalMs.toString()) }
     var fileName by remember(strings) { mutableStateOf(strings["label.logFilenamePrefix"]) }
-    var selectedSignals by remember { mutableStateOf(DefaultSelectedLogSignals) }
     var showSavedLogsDialog by remember { mutableStateOf(false) }
     val savedLogFiles = remember(lastSavedLogPath) { collectSavedLogFiles(lastSavedLogPath) }
 
@@ -200,60 +200,62 @@ internal fun RealTimeMonitorScreenDesktop(
                     singleLine = true,
                     modifier = Modifier.width(280.dp)
                 )
-                Text(
-                    text = strings["label.logSignalsSelect"],
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    LogExportSignals.forEach { signal ->
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier
-                                .background(
-                                    MaterialTheme.colorScheme.surface,
-                                    RoundedCornerShape(10.dp)
-                                )
-                                .padding(horizontal = 8.dp, vertical = 4.dp)
-                        ) {
-                            androidx.compose.material3.Checkbox(
-                                checked = selectedSignals.contains(signal.key),
-                                onCheckedChange = { checked ->
-                                    selectedSignals = if (checked) {
-                                        selectedSignals + signal.key
-                                    } else {
-                                        selectedSignals - signal.key
+                val signalNames = remember(liveData?.outputChannelBlockSize) {
+                    // O Desktop não tem fonte de GPS, então as colunas de GPS não são oferecidas.
+                    LiveLogExporter.availableSignals(liveData?.outputChannelBlockSize ?: 0)
+                        .filterNot { it == LiveLogExporter.GPS_SPEED || it == LiveLogExporter.GPS_LOCATION }
+                }
+                // null = todos os sinais; ao trocar de ECU (outro bloco de canais) a seleção volta a "todos".
+                var chosenSignals by remember(signalNames) { mutableStateOf<Set<String>?>(null) }
+                var showSignalList by remember { mutableStateOf(false) }
+                val effectiveSignals = chosenSignals ?: signalNames.toSet()
+                androidx.compose.material3.TextButton(onClick = { showSignalList = !showSignalList }) {
+                    Text("${strings["label.logSignalsSelect"]} (${effectiveSignals.size}/${signalNames.size})")
+                }
+                if (showSignalList) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        androidx.compose.material3.TextButton(onClick = { chosenSignals = null }) { Text(strings["rtm_select_all"]) }
+                        androidx.compose.material3.TextButton(onClick = { chosenSignals = emptySet() }) { Text(strings["rtm_deselect_all"]) }
+                    }
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(max = 240.dp)
+                            .verticalScroll(rememberScrollState())
+                    ) {
+                        signalNames.forEach { name ->
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                androidx.compose.material3.Checkbox(
+                                    checked = effectiveSignals.contains(name),
+                                    onCheckedChange = { checked ->
+                                        chosenSignals = if (checked) effectiveSignals + name else effectiveSignals - name
                                     }
-                                }
-                            )
-                            Text(strings[signal.labelKey], style = MaterialTheme.typography.bodySmall)
+                                )
+                                Text(name, style = MaterialTheme.typography.bodySmall)
+                            }
                         }
                     }
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                     FilledTonalButton(
+                        enabled = effectiveSignals.isNotEmpty(),
                         onClick = {
                             controller.saveLogSnapshot(
                                 fileName = fileName,
-                                selectedSignalKeys = selectedSignals,
-                                exportFormat = DesktopLogExportFormat.CSV
+                                selectedSignals = effectiveSignals,
+                                exportFormat = LiveLogExportFormat.CSV
                             )
                         }
                     ) {
                         Text(strings["action.saveCsv"])
                     }
                     FilledTonalButton(
+                        enabled = effectiveSignals.isNotEmpty(),
                         onClick = {
                             controller.saveLogSnapshot(
                                 fileName = fileName,
-                                selectedSignalKeys = selectedSignals,
-                                exportFormat = DesktopLogExportFormat.MSL
+                                selectedSignals = effectiveSignals,
+                                exportFormat = LiveLogExportFormat.MSL
                             )
                         }
                     ) {

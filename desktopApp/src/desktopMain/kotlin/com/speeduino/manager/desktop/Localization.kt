@@ -1056,6 +1056,8 @@ object Translations {
         "msg2_tuning_load_cruise" to "Cruise",
         "msg2_tuning_load_idle" to "Idle",
         "msg2_tuning_load_mid" to "Mid load",
+        "rtm_select_all" to "Select all",
+        "rtm_deselect_all" to "Deselect all",
     )
 
     val PT = mapOf(
@@ -2011,6 +2013,8 @@ object Translations {
         "msg2_tuning_load_cruise" to "Cruzeiro",
         "msg2_tuning_load_idle" to "Marcha lenta",
         "msg2_tuning_load_mid" to "Carga média",
+        "rtm_select_all" to "Marcar todos",
+        "rtm_deselect_all" to "Desmarcar todos",
     )
 
     val ES = mapOf(
@@ -2604,6 +2608,8 @@ object Translations {
         "msg2_tuning_load_cruise" to "Crucero",
         "msg2_tuning_load_idle" to "Ralentí",
         "msg2_tuning_load_mid" to "Carga media",
+        "rtm_select_all" to "Marcar todos",
+        "rtm_deselect_all" to "Desmarcar todos",
     )
 
     val FR = mapOf(
@@ -3197,6 +3203,8 @@ object Translations {
         "msg2_tuning_load_cruise" to "Croisière",
         "msg2_tuning_load_idle" to "Ralenti",
         "msg2_tuning_load_mid" to "Charge moyenne",
+        "rtm_select_all" to "Tout cocher",
+        "rtm_deselect_all" to "Tout décocher",
     )
 
     val ID = mapOf(
@@ -3790,6 +3798,8 @@ object Translations {
         "msg2_tuning_load_cruise" to "Cruise",
         "msg2_tuning_load_idle" to "Idle",
         "msg2_tuning_load_mid" to "Beban sedang",
+        "rtm_select_all" to "Pilih semua",
+        "rtm_deselect_all" to "Batalkan semua",
     )
 
     val ZH = mapOf(
@@ -4379,6 +4389,8 @@ object Translations {
         "msg2_tuning_load_cruise" to "巡航",
         "msg2_tuning_load_idle" to "怠速",
         "msg2_tuning_load_mid" to "中等负荷",
+        "rtm_select_all" to "全选",
+        "rtm_deselect_all" to "取消全选",
     )
 
     fun forLanguage(language: AppLanguage): Map<String, String> {
