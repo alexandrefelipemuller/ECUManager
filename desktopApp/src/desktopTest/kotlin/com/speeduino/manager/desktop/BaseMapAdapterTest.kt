@@ -1,5 +1,6 @@
 package com.speeduino.manager.desktop
 
+import io.ecucore.model.basemap.BaseMapAdapter
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

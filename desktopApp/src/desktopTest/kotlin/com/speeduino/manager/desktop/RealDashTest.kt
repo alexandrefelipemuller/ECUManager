@@ -1,25 +1,13 @@
 package com.speeduino.manager.desktop
 
+import io.ecucore.realdash.RealDashSignalMap
+import io.ecucore.realdash.applyGaugeMath
 import com.speeduino.manager.desktop.realdash.Odometer
-import com.speeduino.manager.desktop.realdash.RealDashSignalMap
-import com.speeduino.manager.desktop.realdash.applyGaugeMath
 import java.nio.file.Files
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNull
 
 class RealDashTest {
-    @Test fun gaugeMathAppliesSimpleFormulas() {
-        assertEquals(2.0, applyGaugeMath("=V/1000", 2000.0), 1e-9)
-        assertEquals(30.0, applyGaugeMath("= V * 3", 10.0), 1e-9)
-        assertEquals(7.0, applyGaugeMath("=sqrt(V)", 7.0), 1e-9) // fórmula desconhecida é ignorada
-    }
-
-    @Test fun signalMapKnowsRpmAndIgnoresUnknown() {
-        assertEquals("rpm", RealDashSignalMap.signalFor(37))
-        assertNull(RealDashSignalMap.signalFor(99999))
-    }
-
     @Test fun odometerIntegratesSpeedAndIgnoresLongGaps() {
         val file = Files.createTempFile("odo", ".properties").toFile().also { it.delete() }
         val odo = Odometer(file)

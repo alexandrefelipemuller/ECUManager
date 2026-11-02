@@ -19,11 +19,13 @@ def unescape(t):
 
 def load(d):
     out = {}
-    f = RES / d / "strings.xml"
-    if not f.exists(): return out
-    for e in ET.parse(f).getroot().findall("string"):
-        if e.get("translatable") == "false": continue
-        out[e.get("name")] = unescape("".join(e.itertext()))
+    # O Android divide os textos em vários arquivos (strings.xml, strings_messages.xml, strings_coverage_new.xml...).
+    # strings.xml é lido por último para prevalecer em chave repetida.
+    files = sorted((RES / d).glob("strings*.xml"), key=lambda f: f.name == "strings.xml")
+    for f in files:
+        for e in ET.parse(f).getroot().findall("string"):
+            if e.get("translatable") == "false": continue
+            out[e.get("name")] = unescape("".join(e.itertext()))
     return out
 
 def kt(s):

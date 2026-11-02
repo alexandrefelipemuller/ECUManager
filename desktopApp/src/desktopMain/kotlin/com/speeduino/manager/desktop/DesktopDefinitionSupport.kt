@@ -1,6 +1,7 @@
 package com.speeduino.manager.desktop
 
 import io.ecucore.definition.IniCatalogEntry
+import io.ecucore.definition.IniCatalogMatcher
 import io.ecucore.definition.IniDefinition
 import io.ecucore.definition.IniParser
 import io.ecucore.units.UnitSystem
@@ -138,20 +139,18 @@ internal class DesktopDefinitionRepository(
             refreshCatalog()
         }
         if (!cachedManifestFile.exists()) return emptyList()
-        return parseCatalog(cachedManifestFile.readText())
+        return IniCatalogMatcher.parseCatalog(cachedManifestFile.readText())
     }
 
     fun refreshCatalog(): List<IniCatalogEntry> {
         val content = httpGet("${baseUrl.trimEnd('/')}/$MANIFEST_FILE")
         cachedManifestFile.writeText(content)
-        return parseCatalog(content)
+        return IniCatalogMatcher.parseCatalog(content)
     }
 
     fun findMatchingEntry(signature: String, forceCatalogRefresh: Boolean = false): IniCatalogEntry? {
         val entries = loadCatalog(forceRefresh = forceCatalogRefresh)
-        return entries
-            .filter { matchesSignature(signature, it.signaturePattern) }
-            .maxByOrNull { it.priority }
+        return IniCatalogMatcher.findBestMatchingEntry(signature, entries)
     }
 
     fun downloadDefinition(entry: IniCatalogEntry, forceRefresh: Boolean = false): File {
@@ -218,41 +217,6 @@ internal class DesktopDefinitionRepository(
     fun isDefinitionCached(entry: IniCatalogEntry): Boolean {
         val target = definitionsDir.resolve("${entry.id}.ini")
         return target.exists() && sha256(target).equals(entry.sha256, ignoreCase = true)
-    }
-
-    private fun parseCatalog(content: String): List<IniCatalogEntry> {
-        val json = JSONObject(content)
-        val array = json.optJSONArray("definitions") ?: JSONArray()
-        return buildList {
-            for (index in 0 until array.length()) {
-                val item = array.optJSONObject(index) ?: continue
-                add(
-                    IniCatalogEntry(
-                        id = item.getString("id"),
-                        family = item.getString("family"),
-                        board = item.optString("board", "generic"),
-                        signaturePattern = item.getString("signature_pattern"),
-                        version = item.optString("version", "unknown"),
-                        url = item.getString("url"),
-                        sha256 = item.getString("sha256"),
-                        priority = item.optInt("priority", 100),
-                        bundled = item.optBoolean("bundled", false),
-                        minAppVersion = if (item.has("min_app_version")) item.getInt("min_app_version") else null,
-                    )
-                )
-            }
-        }
-    }
-
-    private fun matchesSignature(signature: String, pattern: String): Boolean {
-        // Espaços colados a um '*' (ex.: "MS/Extra format hr_10 **********") vêm de assinaturas
-        // brutas de ECU com sufixo de versão/checksum após um espaço. Nossa assinatura já
-        // normalizada (FirmwareHandshakeDomain.normalize) não inclui esse sufixo nem o espaço à
-        // frente dele, então exigir literalmente esse espaço faria o padrão nunca casar contra a
-        // forma normalizada - remover o espaço da fronteira do wildcard torna esse sufixo opcional.
-        val normalizedPattern = pattern.trim().replace(Regex("\\s*\\*\\s*"), "*")
-        val wildcardRegex = normalizedPattern.split('*').joinToString(".*") { Regex.escape(it) }
-        return Regex("^$wildcardRegex$", RegexOption.IGNORE_CASE).matches(signature.trim())
     }
 
     private fun httpGet(url: String): String {

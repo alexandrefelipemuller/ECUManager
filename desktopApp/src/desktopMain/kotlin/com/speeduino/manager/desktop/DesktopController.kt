@@ -1,5 +1,12 @@
 package com.speeduino.manager.desktop
 
+import io.ecucore.model.basemap.BaseMapAdapter
+import io.ecucore.safety.TableChangeConfirmation
+import io.ecucore.safety.TableUndoStore
+import io.ecucore.safety.UndoKey
+import io.ecucore.safety.UndoTableKind
+import io.ecucore.safety.VehicleMotion
+import io.ecucore.safety.WriteSafetyGate
 import io.ecucore.ConfigManager
 import io.ecucore.EcuClient
 import io.ecucore.EcuLiveData
@@ -43,6 +50,7 @@ import io.ecucore.model.logging.LiveLogSnapshot
 import io.ecucore.sync.ConfigSyncService
 import io.ecucore.sync.SessionSyncPrompt
 import io.ecucore.tuning.AnalyzerResult
+import io.ecucore.tuning.TuningAnalyzerLabels
 import io.ecucore.tuning.TuningAssistantAnalyzer
 import io.ecucore.tuning.TuningStrategy
 import com.speeduino.manager.telemetry.ConnectionDiagnosticsLogger
@@ -411,6 +419,19 @@ internal class DesktopSpeeduinoController(
                 disconnect()
                 }
         }
+    }
+
+    /** Rótulos do analisador de tuning no idioma atual (mesmas chaves do app Android). */
+    private fun tuningAnalyzerLabels(): TuningAnalyzerLabels {
+        val t = LocalizationManager.currentStrings()
+        return TuningAnalyzerLabels(
+            leanAverage = t["msg2_tuning_lean_average"],
+            richAverage = t["msg2_tuning_rich_average"],
+            highLoad = t["msg2_tuning_load_high"],
+            cruise = t["msg2_tuning_load_cruise"],
+            idle = t["msg2_tuning_load_idle"],
+            midLoad = t["msg2_tuning_load_mid"],
+        )
     }
 
     private fun createTransport(connection: IEcuConnection): EcuTransport {
@@ -1997,7 +2018,8 @@ internal class DesktopSpeeduinoController(
                         lines = lines,
                         veTable = ve,
                         afrTable = afr,
-                        strategy = strategy
+                        strategy = strategy,
+                        labels = tuningAnalyzerLabels()
                     )
                 }
                 _analyzerResult.value = result
@@ -2037,7 +2059,8 @@ internal class DesktopSpeeduinoController(
                             lines = lines,
                             veTable = updated,
                             afrTable = afr,
-                            strategy = strategy
+                            strategy = strategy,
+                            labels = tuningAnalyzerLabels()
                         )
                     }
                 }

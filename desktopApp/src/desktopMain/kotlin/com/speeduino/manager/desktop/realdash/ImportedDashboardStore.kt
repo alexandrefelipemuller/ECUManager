@@ -1,5 +1,6 @@
 package com.speeduino.manager.desktop.realdash
 
+import io.ecucore.realdash.RdFile
 import com.speeduino.manager.desktop.DesktopSettingsStore
 import java.io.File
 import java.util.Properties

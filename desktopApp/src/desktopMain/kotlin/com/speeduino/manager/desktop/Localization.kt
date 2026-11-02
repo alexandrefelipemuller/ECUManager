@@ -1,5 +1,6 @@
 package com.speeduino.manager.desktop
 
+import io.ecucore.io.Conversion
 import androidx.compose.runtime.staticCompositionLocalOf
 import kotlinx.coroutines.flow.MutableStateFlow
 import java.util.Locale
@@ -1049,6 +1050,12 @@ object Translations {
         "hint_base_map_wizard" to "Generating a base map overwrites the current VE, ignition and AFR tables and the main settings. Review the summary before saving.",
         "hint_before_after_compare" to "Compare what changed between two versions of your tables. Pick what to compare below.",
         "loading_from_ecu" to "Loading from the ECU…",
+        "msg2_tuning_lean_average" to "Lean average",
+        "msg2_tuning_rich_average" to "Rich average",
+        "msg2_tuning_load_high" to "High load",
+        "msg2_tuning_load_cruise" to "Cruise",
+        "msg2_tuning_load_idle" to "Idle",
+        "msg2_tuning_load_mid" to "Mid load",
     )
 
     val PT = mapOf(
@@ -1998,6 +2005,12 @@ object Translations {
         "hint_base_map_wizard" to "Gerar um mapa base sobrescreve as tabelas atuais de VE, ignição e AFR e as configurações principais. Confira o resumo antes de salvar.",
         "hint_before_after_compare" to "Compare o que mudou entre duas versões das suas tabelas. Escolha abaixo o que comparar.",
         "loading_from_ecu" to "Carregando da ECU…",
+        "msg2_tuning_lean_average" to "Média pobre",
+        "msg2_tuning_rich_average" to "Média rica",
+        "msg2_tuning_load_high" to "Carga alta",
+        "msg2_tuning_load_cruise" to "Cruzeiro",
+        "msg2_tuning_load_idle" to "Marcha lenta",
+        "msg2_tuning_load_mid" to "Carga média",
     )
 
     val ES = mapOf(
@@ -2585,6 +2598,12 @@ object Translations {
         "hint_base_map_wizard" to "Generar un mapa base sobrescribe las tablas actuales de VE, encendido y AFR y los ajustes principales. Revisa el resumen antes de guardar.",
         "hint_before_after_compare" to "Compara lo que cambió entre dos versiones de tus tablas. Elige abajo qué comparar.",
         "loading_from_ecu" to "Cargando desde la ECU…",
+        "msg2_tuning_lean_average" to "Promedio pobre",
+        "msg2_tuning_rich_average" to "Promedio rico",
+        "msg2_tuning_load_high" to "Carga alta",
+        "msg2_tuning_load_cruise" to "Crucero",
+        "msg2_tuning_load_idle" to "Ralentí",
+        "msg2_tuning_load_mid" to "Carga media",
     )
 
     val FR = mapOf(
@@ -3172,6 +3191,12 @@ object Translations {
         "hint_base_map_wizard" to "Générer une cartographie de base écrase les tableaux VE, allumage et AFR actuels ainsi que les réglages principaux. Vérifiez le récapitulatif avant d’enregistrer.",
         "hint_before_after_compare" to "Comparez ce qui a changé entre deux versions de vos tableaux. Choisissez ci-dessous ce qu’il faut comparer.",
         "loading_from_ecu" to "Chargement depuis l’ECU…",
+        "msg2_tuning_lean_average" to "Moyenne pauvre",
+        "msg2_tuning_rich_average" to "Moyenne riche",
+        "msg2_tuning_load_high" to "Charge élevée",
+        "msg2_tuning_load_cruise" to "Croisière",
+        "msg2_tuning_load_idle" to "Ralenti",
+        "msg2_tuning_load_mid" to "Charge moyenne",
     )
 
     val ID = mapOf(
@@ -3759,6 +3784,12 @@ object Translations {
         "hint_base_map_wizard" to "Membuat peta dasar menimpa tabel VE, pengapian, dan AFR saat ini serta pengaturan utama. Periksa ringkasan sebelum menyimpan.",
         "hint_before_after_compare" to "Bandingkan perubahan antara dua versi tabel Anda. Pilih di bawah apa yang dibandingkan.",
         "loading_from_ecu" to "Memuat dari ECU…",
+        "msg2_tuning_lean_average" to "Rata-rata miskin",
+        "msg2_tuning_rich_average" to "Rata-rata kaya",
+        "msg2_tuning_load_high" to "Beban tinggi",
+        "msg2_tuning_load_cruise" to "Cruise",
+        "msg2_tuning_load_idle" to "Idle",
+        "msg2_tuning_load_mid" to "Beban sedang",
     )
 
     val ZH = mapOf(
@@ -4342,6 +4373,12 @@ object Translations {
         "hint_base_map_wizard" to "生成基础图谱会覆盖当前的 VE、点火和 AFR 表以及主要设置。保存前请检查摘要。",
         "hint_before_after_compare" to "比较表格两个版本之间的变化。请在下方选择要比较的内容。",
         "loading_from_ecu" to "正在从 ECU 加载…",
+        "msg2_tuning_lean_average" to "平均偏稀",
+        "msg2_tuning_rich_average" to "平均偏浓",
+        "msg2_tuning_load_high" to "高负荷",
+        "msg2_tuning_load_cruise" to "巡航",
+        "msg2_tuning_load_idle" to "怠速",
+        "msg2_tuning_load_mid" to "中等负荷",
     )
 
     fun forLanguage(language: AppLanguage): Map<String, String> {

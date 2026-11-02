@@ -1,5 +1,10 @@
 package com.speeduino.manager.desktop
 
+import io.ecucore.safety.TableChangeConfirmation
+import io.ecucore.safety.UndoKey
+import io.ecucore.safety.UndoTableKind
+import io.ecucore.safety.WriteSafetyGate
+import io.ecucore.safety.WriteSafetyRequest
 import io.ecucore.model.TableChangeKind
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.HorizontalScrollbar
@@ -810,8 +815,8 @@ private fun rememberTableUndo(controller: DesktopSpeeduinoController, key: UndoK
 
 @Composable
 internal fun TableChangeConfirmationDialog(confirmation: TableChangeConfirmation) {
-    val assessment by confirmation.pending.collectAsState()
-    val current = assessment ?: return
+    val request by confirmation.pending.collectAsState()
+    val current = request?.assessment ?: return
     val strings = LocalStrings.current
     val tableName = when (current.kind) {
         TableChangeKind.VE -> strings["tableChange.nameVe"]

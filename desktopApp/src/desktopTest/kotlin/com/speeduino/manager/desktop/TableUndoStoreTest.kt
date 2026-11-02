@@ -1,5 +1,9 @@
 package com.speeduino.manager.desktop
 
+import io.ecucore.safety.TableChangeConfirmation
+import io.ecucore.safety.TableUndoStore
+import io.ecucore.safety.UndoKey
+import io.ecucore.safety.UndoTableKind
 import io.ecucore.model.TableChangeAssessment
 import io.ecucore.model.TableChangeKind
 import kotlinx.coroutines.async

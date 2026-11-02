@@ -1,5 +1,8 @@
 package com.speeduino.manager.desktop
 
+import io.ecucore.safety.VehicleMotion
+import io.ecucore.safety.WriteSafetyGate
+import io.ecucore.safety.WriteSafetyRequest
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking

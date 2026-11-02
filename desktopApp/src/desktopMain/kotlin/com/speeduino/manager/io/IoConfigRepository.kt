@@ -1,5 +1,24 @@
 package com.speeduino.manager.io
 
+import io.ecucore.io.ActuatorConfig
+import io.ecucore.io.ActuatorControlMode
+import io.ecucore.io.ActuatorType
+import io.ecucore.io.CompareOp
+import io.ecucore.io.Conversion
+import io.ecucore.io.ExpressionConversion
+import io.ecucore.io.IoChannel
+import io.ecucore.io.IoChannelType
+import io.ecucore.io.IoConfig
+import io.ecucore.io.LinearConversion
+import io.ecucore.io.SensorConfig
+import io.ecucore.io.TableConversion
+import io.ecucore.io.TablePoint
+import io.ecucore.io.VirtualBitConfig
+import io.ecucore.io.VirtualCompareConfig
+import io.ecucore.io.VirtualConfig
+import io.ecucore.io.VirtualMode
+import io.ecucore.io.VirtualOperationConfig
+import io.ecucore.io.VirtualOutputFormat
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File

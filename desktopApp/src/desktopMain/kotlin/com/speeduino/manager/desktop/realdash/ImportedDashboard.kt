@@ -1,5 +1,16 @@
 package com.speeduino.manager.desktop.realdash
 
+import io.ecucore.realdash.BarExt
+import io.ecucore.realdash.ContainerExt
+import io.ecucore.realdash.DialExt
+import io.ecucore.realdash.Gauge
+import io.ecucore.realdash.GaugeType
+import io.ecucore.realdash.RdFile
+import io.ecucore.realdash.RdRect
+import io.ecucore.realdash.RealDashSignalMap
+import io.ecucore.realdash.ResourceType
+import io.ecucore.realdash.SliderExt
+import io.ecucore.realdash.applyGaugeMath
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

@@ -1,5 +1,7 @@
 package com.speeduino.manager.desktop
 
+import io.ecucore.safety.WriteSafetyGate
+import io.ecucore.safety.WriteSafetyRequest
 import io.ecucore.ConfigManager
 import io.ecucore.EcuClient
 import io.ecucore.TableChangeRejectedException
