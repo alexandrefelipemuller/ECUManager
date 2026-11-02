@@ -81,6 +81,15 @@ class SimulatorIntegrationTest {
             try {
                 assertEquals(family, client.getEcuFamily())
 
+                // 0. Velocidade do RealDash (ids 64/81 = "vss") deve vir dos dados ao vivo, não ficar em "--".
+                if (speeduinoGuards) { // o simulador MS2 não injeta velocidade
+                    val live = runBlocking { client.readLiveData() }
+                    kotlin.test.assertNotNull(
+                        com.speeduino.manager.desktop.realdash.resolveRealDashSignal(live, "vss"),
+                        "vss deveria resolver a partir do canal de saída da ECU",
+                    )
+                }
+
                 // 1. Escrita e releitura de uma célula da VE.
                 val original = runBlocking { client.readVeTable(1) }
                 val delta = if (original.values[0][0] < 250) 1 else -1
