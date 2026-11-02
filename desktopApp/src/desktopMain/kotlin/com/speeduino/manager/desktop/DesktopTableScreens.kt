@@ -1,5 +1,6 @@
 package com.speeduino.manager.desktop
 
+import io.ecucore.model.TableChangeKind
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.HorizontalScrollbar
 import androidx.compose.foundation.VerticalScrollbar
@@ -89,6 +90,7 @@ internal fun VeTableScreenDesktop(controller: DesktopSpeeduinoController, mapInd
         loadError = loadError,
         onLoad = { controller.loadVeTable(mapIndex) },
         onSave = { controller.saveVeTable(it, mapIndex) },
+        undo = rememberTableUndo(controller, UndoKey(UndoTableKind.VE, mapIndex)),
         formatValue = { it.toString() },
         parseValue = { it.toIntOrNull() },
         valueRange = 0..255,
@@ -118,6 +120,7 @@ internal fun IgnitionTableScreenDesktop(controller: DesktopSpeeduinoController, 
         loadError = loadError,
         onLoad = { controller.loadIgnitionTable(mapIndex) },
         onSave = { controller.saveIgnitionTable(it, mapIndex) },
+        undo = rememberTableUndo(controller, UndoKey(UndoTableKind.IGNITION, mapIndex)),
         formatValue = { it.toString() },
         parseValue = { it.toIntOrNull() },
         valueRange = -40..70,
@@ -147,6 +150,7 @@ internal fun AfrTableScreenDesktop(controller: DesktopSpeeduinoController) {
         loadError = loadError,
         onLoad = controller::loadAfrTable,
         onSave = controller::saveAfrTable,
+        undo = rememberTableUndo(controller, UndoKey(UndoTableKind.AFR)),
         formatValue = { AfrTable.formatValue(it) },
         parseValue = { parseAfrValue(it) },
         valueRange = 100..200,
@@ -176,6 +180,7 @@ internal fun DwellTableScreenDesktop(controller: DesktopSpeeduinoController) {
         loadError = loadError,
         onLoad = controller::loadDwellTable,
         onSave = controller::saveDwellTable,
+        undo = rememberTableUndo(controller, UndoKey(UndoTableKind.DWELL)),
         formatValue = { it.toString() },
         parseValue = { it.toIntOrNull() },
         valueRange = 0..10,
@@ -210,6 +215,7 @@ private fun <T> MapTableScreen(
     loadError: String? = null,
     onLoad: () -> Unit,
     onSave: (T) -> Unit,
+    undo: TableUndoUi = TableUndoUi.None,
     formatValue: (Int) -> String,
     parseValue: (String) -> Int?,
     valueRange: IntRange,
@@ -231,6 +237,7 @@ private fun <T> MapTableScreen(
     var editValue by remember { mutableStateOf("") }
     var invertYAxis by remember { mutableStateOf(true) }
     var showInfo by remember { mutableStateOf(false) }
+    var showUndoConfirm by remember { mutableStateOf(false) }
     var liveCursorEnabled by remember { mutableStateOf(false) }
     var selection by remember { mutableStateOf<TableSelection?>(null) }
     var pendingAction by remember { mutableStateOf<SelectionAction?>(null) }
@@ -495,7 +502,26 @@ private fun <T> MapTableScreen(
                 enabled = workingTable != null && hasChanges,
                 modifier = Modifier.weight(1f)
             ) { Text(strings["action.saveEcu"]) }
+            FilledTonalButton(
+                onClick = { showUndoConfirm = true },
+                enabled = undo.available,
+                modifier = Modifier.weight(1f)
+            ) { Text(strings["action.undo"]) }
         }
+    }
+
+    if (showUndoConfirm) {
+        AlertDialog(
+            onDismissRequest = { showUndoConfirm = false },
+            title = { Text(strings["undo.title"]) },
+            text = { Text(strings["undo.body"]) },
+            confirmButton = {
+                TextButton(onClick = { showUndoConfirm = false; undo.onUndo() }) { Text(strings["action.undo"]) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showUndoConfirm = false }) { Text(strings["action.cancel"]) }
+            }
+        )
     }
 
     if (pendingAction == SelectionAction.SET_VALUE || pendingAction == SelectionAction.ADD_DELTA) {
@@ -763,4 +789,53 @@ private fun parseAfrValue(text: String): Int? {
         normalized.contains('.') -> normalized.toFloatOrNull()?.let { (it * 10).toInt() }
         else -> normalized.toIntOrNull()
     }
+}
+
+/** O que a tela de tabela precisa para mostrar e acionar o "Desfazer". */
+internal data class TableUndoUi(val available: Boolean = false, val onUndo: () -> Unit = {}) {
+    companion object {
+        val None = TableUndoUi()
+    }
+}
+
+@Composable
+private fun rememberTableUndo(controller: DesktopSpeeduinoController, key: UndoKey): TableUndoUi {
+    val available by controller.tableUndoStore.available.collectAsState()
+    return TableUndoUi(key in available) { controller.undoTableWrite(key) }
+}
+
+@Composable
+internal fun TableChangeConfirmationDialog(confirmation: TableChangeConfirmation) {
+    val assessment by confirmation.pending.collectAsState()
+    val current = assessment ?: return
+    val strings = LocalStrings.current
+    val tableName = when (current.kind) {
+        TableChangeKind.VE -> strings["tableChange.nameVe"]
+        TableChangeKind.IGNITION -> strings["tableChange.nameIgnition"]
+        TableChangeKind.AFR -> strings["tableChange.nameAfr"]
+    }
+    val detail = if (current.shapeChanged) {
+        strings["tableChange.detailShape"]
+    } else {
+        strings.format("tableChange.detail", current.largeChangeCells, current.totalCells, current.changedCells)
+    }
+    AlertDialog(
+        onDismissRequest = { confirmation.resolve(false) },
+        title = { Text(strings.format("tableChange.title", tableName)) },
+        text = {
+            Text(
+                buildString {
+                    appendLine(detail)
+                    if (current.bulkReplacement && !current.shapeChanged) {
+                        appendLine()
+                        appendLine(strings["tableChange.bulk"])
+                    }
+                    appendLine()
+                    append(strings["tableChange.warning"])
+                }
+            )
+        },
+        confirmButton = { TextButton(onClick = { confirmation.resolve(true) }) { Text(strings["tableChange.confirm"]) } },
+        dismissButton = { TextButton(onClick = { confirmation.resolve(false) }) { Text(strings["action.cancel"]) } }
+    )
 }
