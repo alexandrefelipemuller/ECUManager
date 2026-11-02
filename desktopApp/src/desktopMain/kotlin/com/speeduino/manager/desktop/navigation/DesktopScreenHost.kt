@@ -1,6 +1,7 @@
 package com.speeduino.manager.desktop.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import io.ecucore.EcuLiveData
 import com.speeduino.manager.desktop.ConnectionState
 import com.speeduino.manager.desktop.ConnectionType
@@ -198,6 +199,7 @@ internal fun ScreenHost(
         )
         DesktopRoute.Tools,
         DesktopRoute.RestorePoints,
+        DesktopRoute.LogMap,
         DesktopRoute.LogsEcuTools,
         DesktopRoute.LogViewer,
         DesktopRoute.RealTimeMonitor,
@@ -217,7 +219,9 @@ internal fun ScreenHost(
             onOpenSettings = onOpenSettings,
             onOpenInstitutional = onOpenInstitutional,
             onOpenHistoricalLogViewer = onOpenHistoricalLogViewer,
-            onOpenRestorePoints = { onOpenRoute(DesktopRoute.RestorePoints) }
+            onOpenRestorePoints = { onOpenRoute(DesktopRoute.RestorePoints) },
+            onOpenLogMap = { path -> controller.logMapPath.value = path; onOpenRoute(DesktopRoute.LogMap) },
+            logMapPath = controller.logMapPath.collectAsState().value
         )
     }
 }

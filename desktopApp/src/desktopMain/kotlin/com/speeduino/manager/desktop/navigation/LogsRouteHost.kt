@@ -25,7 +25,9 @@ internal fun LogsRouteHost(
     onOpenSettings: () -> Unit,
     onOpenInstitutional: () -> Unit,
     onOpenHistoricalLogViewer: (String) -> Unit,
-    onOpenRestorePoints: () -> Unit = {}
+    onOpenRestorePoints: () -> Unit = {},
+    onOpenLogMap: (String) -> Unit = {},
+    logMapPath: String? = null
 ) {
     when (route) {
         DesktopRoute.Tools,
@@ -40,8 +42,10 @@ internal fun LogsRouteHost(
             onOpenSettings = onOpenSettings,
             onOpenInstitutional = onOpenInstitutional,
             onOpenHistoricalLogViewer = onOpenHistoricalLogViewer,
-            onOpenRestorePoints = onOpenRestorePoints
+            onOpenRestorePoints = onOpenRestorePoints,
+            onOpenLogMap = onOpenLogMap
         )
+        DesktopRoute.LogMap -> com.speeduino.manager.desktop.feature.logs.LogMapScreenDesktop(logMapPath)
         DesktopRoute.RestorePoints -> com.speeduino.manager.desktop.feature.app.RestorePointsScreenDesktop(controller)
         DesktopRoute.RealTimeMonitor -> RealTimeMonitorScreenDesktop(controller, liveData)
         DesktopRoute.LogViewer -> LogViewerScreenDesktop(controller)

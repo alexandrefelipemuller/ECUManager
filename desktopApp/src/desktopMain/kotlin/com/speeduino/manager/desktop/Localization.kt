@@ -1010,6 +1010,16 @@ object Translations {
         "restore_points_created" to "Restore point saved.",
         "restore_points_create_failed" to "Could not save the restore point.",
         "restore_points_import" to "Import configuration",
+        "log_map_title" to "Log on Map",
+        "log_map_open_action" to "View on map",
+        "log_map_no_gps" to "This log has no valid GPS data. Enable GPS signal before recording to use the map.",
+        "log_map_load_error" to "Could not load this log.",
+        "log_map_no_heatmap" to "No heatmap",
+        "log_map_invert" to "Invert",
+        "log_map_palette_viridis" to "Viridis",
+        "log_map_play" to "Play",
+        "log_map_pause" to "Pause",
+        "log_map_follow" to "Follow",
     )
 
     val PT = mapOf(
@@ -1917,6 +1927,16 @@ object Translations {
         "restore_points_created" to "Ponto de restauração salvo.",
         "restore_points_create_failed" to "Não foi possível salvar o ponto de restauração.",
         "restore_points_import" to "Importar configuração",
+        "log_map_title" to "Log no Mapa",
+        "log_map_open_action" to "Ver no mapa",
+        "log_map_no_gps" to "Este log não tem dados de GPS válidos. Ative o sinal de GPS antes de gravar para usar o mapa.",
+        "log_map_load_error" to "Não foi possível carregar este log.",
+        "log_map_no_heatmap" to "Sem mapa de calor",
+        "log_map_invert" to "Inverter",
+        "log_map_palette_viridis" to "Viridis",
+        "log_map_play" to "Reproduzir",
+        "log_map_pause" to "Pausar",
+        "log_map_follow" to "Seguir",
     )
 
     val ES = mapOf(
@@ -2462,6 +2482,16 @@ object Translations {
         "restore_points_created" to "Restore point saved.",
         "restore_points_create_failed" to "Could not save the restore point.",
         "restore_points_import" to "Import configuration",
+        "log_map_title" to "Registro en el mapa",
+        "log_map_open_action" to "Ver en el mapa",
+        "log_map_no_gps" to "Este registro no tiene datos GPS válidos. Active la señal GPS antes de grabar para usar el mapa.",
+        "log_map_load_error" to "No se pudo cargar este registro.",
+        "log_map_no_heatmap" to "Sin mapa de calor",
+        "log_map_invert" to "Invertir",
+        "log_map_palette_viridis" to "Viridis",
+        "log_map_play" to "Reproducir",
+        "log_map_pause" to "Pausar",
+        "log_map_follow" to "Seguir",
     )
 
     val FR = mapOf(
@@ -3007,6 +3037,16 @@ object Translations {
         "restore_points_created" to "Restore point saved.",
         "restore_points_create_failed" to "Could not save the restore point.",
         "restore_points_import" to "Import configuration",
+        "log_map_title" to "Journal sur la carte",
+        "log_map_open_action" to "Voir sur la carte",
+        "log_map_no_gps" to "Ce journal n'a pas de données GPS valides. Activez le signal GPS avant d'enregistrer pour utiliser la carte.",
+        "log_map_load_error" to "Impossible de charger ce journal.",
+        "log_map_no_heatmap" to "Sans carte thermique",
+        "log_map_invert" to "Inverser",
+        "log_map_palette_viridis" to "Viridis",
+        "log_map_play" to "Lecture",
+        "log_map_pause" to "Pause",
+        "log_map_follow" to "Suivre",
     )
 
     val ID = mapOf(
@@ -3552,6 +3592,16 @@ object Translations {
         "restore_points_created" to "Restore point saved.",
         "restore_points_create_failed" to "Could not save the restore point.",
         "restore_points_import" to "Import configuration",
+        "log_map_title" to "Log di Peta",
+        "log_map_open_action" to "Lihat di peta",
+        "log_map_no_gps" to "Log ini tidak memiliki data GPS yang valid. Aktifkan sinyal GPS sebelum merekam untuk menggunakan peta.",
+        "log_map_load_error" to "Tidak dapat memuat log ini.",
+        "log_map_no_heatmap" to "Tanpa peta panas",
+        "log_map_invert" to "Balik",
+        "log_map_palette_viridis" to "Viridis",
+        "log_map_play" to "Putar",
+        "log_map_pause" to "Jeda",
+        "log_map_follow" to "Ikuti",
     )
 
     val ZH = mapOf(
@@ -4093,6 +4143,16 @@ object Translations {
         "restore_points_created" to "Restore point saved.",
         "restore_points_create_failed" to "Could not save the restore point.",
         "restore_points_import" to "Import configuration",
+        "log_map_title" to "地图日志",
+        "log_map_open_action" to "在地图上查看",
+        "log_map_no_gps" to "此日志没有有效的 GPS 数据。请在录制前启用 GPS 信号以使用地图。",
+        "log_map_load_error" to "无法加载此日志。",
+        "log_map_no_heatmap" to "无热力图",
+        "log_map_invert" to "反转",
+        "log_map_palette_viridis" to "Viridis",
+        "log_map_play" to "播放",
+        "log_map_pause" to "暂停",
+        "log_map_follow" to "跟随",
     )
 
     fun forLanguage(language: AppLanguage): Map<String, String> {

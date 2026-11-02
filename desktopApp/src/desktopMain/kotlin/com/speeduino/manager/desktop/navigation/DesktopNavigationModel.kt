@@ -55,6 +55,7 @@ internal enum class DesktopRoute(
     BeforeAfter("route.beforeAfter", "route.beforeAfter", Icons.Default.Build),
     VirtualDyno("route.virtualDyno", "route.virtualDyno", Icons.Default.Build),
     LogsEcuTools("route.logsEcuTools", "label.logsEcuToolsTitle", Icons.Default.Build),
+    LogMap("log_map_title", "log_map_title", Icons.Default.Build),
     RestorePoints("restore_points_title", "restore_points_title", Icons.Default.Build),
     RevLimiter("config_rev_limiter_title", "config_rev_limiter_title", Icons.Default.Settings),
     Ms2Wue("ms2_wue_title", "ms2_wue_title", Icons.Default.Settings),
@@ -107,7 +108,8 @@ internal fun parentRoute(route: DesktopRoute): DesktopRoute? {
         DesktopRoute.MapsTables -> DesktopRoute.Fuel
         DesktopRoute.ConfigsTuning -> DesktopRoute.EngineSetup
         DesktopRoute.LogsEcuTools,
-        DesktopRoute.RestorePoints -> DesktopRoute.Tools
+        DesktopRoute.RestorePoints,
+        DesktopRoute.LogMap -> DesktopRoute.Tools
         else -> null
     }
 }

@@ -1090,6 +1090,9 @@ internal class DesktopSpeeduinoController(
         }
     }
 
+    /** Log aberto na tela "Log no mapa". */
+    val logMapPath = MutableStateFlow<String?>(null)
+
     private val restorePointStore = RestorePointStore()
     private val _restorePoints = MutableStateFlow(restorePointStore.list())
     val restorePoints = _restorePoints.asStateFlow()

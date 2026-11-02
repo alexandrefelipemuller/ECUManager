@@ -55,7 +55,8 @@ internal fun LogsEcuToolsScreenDesktop(
     onOpenSettings: () -> Unit,
     onOpenInstitutional: () -> Unit,
     onOpenHistoricalLogViewer: (String) -> Unit,
-    onOpenRestorePoints: () -> Unit = {}
+    onOpenRestorePoints: () -> Unit = {},
+    onOpenLogMap: (String) -> Unit = {}
 ) {
     val strings = LocalStrings.current
     KioskScreenScaffold(
@@ -80,6 +81,13 @@ internal fun LogsEcuToolsScreenDesktop(
             )
         }
         KioskPanelCard(strings["label.toolsAnalysisSection"]) {
+            KioskFeatureCard(
+                strings["log_map_title"],
+                strings["log_map_open_action"],
+                icon = Icons.Default.FolderOpen,
+                large = true,
+                onClick = { chooseOpenFile(strings["label.logViewerOpenCsvTitle"])?.absolutePath?.let(onOpenLogMap) }
+            )
             KioskFeatureCard(strings["route.logAnalyzer"], strings["label.toolsLogAnalyzerDesc"], icon = Icons.Default.Analytics, large = true, onClick = onOpenLogAnalyzer)
             KioskFeatureCard(strings["route.beforeAfter"], strings["label.toolsBeforeAfterDesc"], icon = Icons.Default.CompareArrows, large = true, onClick = onOpenBeforeAfter)
             KioskFeatureCard(strings["route.virtualDyno"], strings["label.toolsVirtualDynoDesc"], icon = Icons.Default.Speed, large = true, onClick = onOpenVirtualDyno)
