@@ -49,6 +49,10 @@ internal fun SensorsCalibrationScreenDesktop(controller: DesktopSpeeduinoControl
     var tpsMin by remember { mutableStateOf("0") }
     var tpsMax by remember { mutableStateOf("255") }
     var status by remember { mutableStateOf(strings["label.calibrationLoadHint"]) }
+    val firmware by controller.firmwareInfo.collectAsState()
+    val liveData by controller.liveData.collectAsState()
+    val isMs2 = firmware?.family == io.ecucore.model.EcuFamily.MS2
+    var showMs2TpsDialog by remember { mutableStateOf(false) }
 
     fun loadFromEcu() {
         scope.launch {
@@ -100,7 +104,8 @@ internal fun SensorsCalibrationScreenDesktop(controller: DesktopSpeeduinoControl
                                 val tpsResult = controller.writeTpsCalibration(
                                     TpsCalibration(
                                         tpsMin = tpsMin.toIntOrNull() ?: 0,
-                                        tpsMax = tpsMax.toIntOrNull() ?: 255,
+                                        tpsMax = tpsMax.toIntOrNull() ?: if (isMs2) 1023 else 255,
+                                        adcMax = if (isMs2) TpsCalibration.ADC_MAX_10BIT else TpsCalibration.ADC_MAX_8BIT,
                                     )
                                 )
                                 status = if (pressureResult.isSuccess && tpsResult.isSuccess) strings["label.calibrationSaveSuccess"] else strings["label.calibrationSaveFailed"]
@@ -146,8 +151,35 @@ internal fun SensorsCalibrationScreenDesktop(controller: DesktopSpeeduinoControl
                     NumberField(strings["label.closedAdc"], tpsMin, { tpsMin = it }, Modifier.weight(1f))
                     NumberField(strings["label.openAdc"], tpsMax, { tpsMax = it }, Modifier.weight(1f))
                 }
+                if (isMs2 && liveData?.tpsAdc != null) {
+                    FilledTonalButton(onClick = { showMs2TpsDialog = true }, enabled = connectionState.isConnected) {
+                        Text(strings["sensor_tps_ms2_title"])
+                    }
+                }
             }
         }
+    }
+
+    if (showMs2TpsDialog) {
+        Ms2TpsCalibrationDialog(
+            liveAdc = liveData?.tpsAdc,
+            initialClosed = tpsMin.toIntOrNull() ?: 0,
+            initialOpen = tpsMax.toIntOrNull() ?: 1023,
+            onDismiss = { showMs2TpsDialog = false },
+            onSave = { closed, open ->
+                scope.launch {
+                    val result = controller.writeTpsCalibration(TpsCalibration(closed, open, TpsCalibration.ADC_MAX_10BIT))
+                    if (result.isSuccess) {
+                        tpsMin = closed.toString()
+                        tpsMax = open.toString()
+                        status = strings["label.calibrationSaveSuccess"]
+                        showMs2TpsDialog = false
+                    } else {
+                        status = strings["label.calibrationSaveFailed"]
+                    }
+                }
+            },
+        )
     }
 
     LaunchedEffect(connectionState.isConnected) {

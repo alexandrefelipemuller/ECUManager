@@ -956,6 +956,16 @@ object Translations {
         "ms2_idle_err_closed_limit" to "The closed position exceeds the allowed maximum.",
         "ms2_idle_err_closed_below_open" to "The closed position must be lower than the open position.",
         "ms2_idle_err_rpm_range" to "Target RPM at point %1\$d must be between 500 and 2000.",
+        "btn_cancel" to "Cancel",
+        "sensor_tps_ms2_title" to "TPS calibration (MS2)",
+        "sensor_tps_ms2_instructions" to "Engine off, ignition on. Release the throttle and tap \"Capture closed\", then open it fully and tap \"Capture WOT\". You can adjust the values manually before saving.",
+        "sensor_tps_ms2_live_adc" to "Live TPS ADC: %1\$d",
+        "sensor_tps_ms2_capture_closed" to "Capture closed (0%)",
+        "sensor_tps_ms2_capture_wot" to "Capture WOT (100%)",
+        "sensor_tps_ms2_closed_label" to "Closed (0%) ADC",
+        "sensor_tps_ms2_wot_label" to "WOT (100%) ADC",
+        "sensor_tps_ms2_save" to "Save",
+        "sensor_tps_ms2_invalid" to "Invalid values: closed must be lower than WOT, both within 0-1023 and at least 100 counts apart.",
     )
 
     val PT = mapOf(
@@ -1809,6 +1819,16 @@ object Translations {
         "ms2_idle_err_closed_limit" to "A posição fechada excede o máximo permitido.",
         "ms2_idle_err_closed_below_open" to "A posição fechada deve ser menor que a aberta.",
         "ms2_idle_err_rpm_range" to "O RPM alvo do ponto %1\$d deve estar entre 500 e 2000.",
+        "btn_cancel" to "Cancelar",
+        "sensor_tps_ms2_title" to "TPS calibration (MS2)",
+        "sensor_tps_ms2_instructions" to "Engine off, ignition on. Release the throttle and tap \"Capture closed\", then open it fully and tap \"Capture WOT\". You can adjust the values manually before saving.",
+        "sensor_tps_ms2_live_adc" to "Live TPS ADC: %1\$d",
+        "sensor_tps_ms2_capture_closed" to "Capture closed (0%)",
+        "sensor_tps_ms2_capture_wot" to "Capture WOT (100%)",
+        "sensor_tps_ms2_closed_label" to "Closed (0%) ADC",
+        "sensor_tps_ms2_wot_label" to "WOT (100%) ADC",
+        "sensor_tps_ms2_save" to "Save",
+        "sensor_tps_ms2_invalid" to "Invalid values: closed must be lower than WOT, both within 0-1023 and at least 100 counts apart.",
     )
 
     val ES = mapOf(
@@ -2300,6 +2320,16 @@ object Translations {
         "ms2_idle_err_closed_limit" to "The closed position exceeds the allowed maximum.",
         "ms2_idle_err_closed_below_open" to "The closed position must be lower than the open position.",
         "ms2_idle_err_rpm_range" to "Target RPM at point %1\$d must be between 500 and 2000.",
+        "btn_cancel" to "Cancelar",
+        "sensor_tps_ms2_title" to "TPS calibration (MS2)",
+        "sensor_tps_ms2_instructions" to "Engine off, ignition on. Release the throttle and tap \"Capture closed\", then open it fully and tap \"Capture WOT\". You can adjust the values manually before saving.",
+        "sensor_tps_ms2_live_adc" to "Live TPS ADC: %1\$d",
+        "sensor_tps_ms2_capture_closed" to "Capture closed (0%)",
+        "sensor_tps_ms2_capture_wot" to "Capture WOT (100%)",
+        "sensor_tps_ms2_closed_label" to "Closed (0%) ADC",
+        "sensor_tps_ms2_wot_label" to "WOT (100%) ADC",
+        "sensor_tps_ms2_save" to "Save",
+        "sensor_tps_ms2_invalid" to "Invalid values: closed must be lower than WOT, both within 0-1023 and at least 100 counts apart.",
     )
 
     val FR = mapOf(
@@ -2791,6 +2821,16 @@ object Translations {
         "ms2_idle_err_closed_limit" to "The closed position exceeds the allowed maximum.",
         "ms2_idle_err_closed_below_open" to "The closed position must be lower than the open position.",
         "ms2_idle_err_rpm_range" to "Target RPM at point %1\$d must be between 500 and 2000.",
+        "btn_cancel" to "Annuler",
+        "sensor_tps_ms2_title" to "TPS calibration (MS2)",
+        "sensor_tps_ms2_instructions" to "Engine off, ignition on. Release the throttle and tap \"Capture closed\", then open it fully and tap \"Capture WOT\". You can adjust the values manually before saving.",
+        "sensor_tps_ms2_live_adc" to "Live TPS ADC: %1\$d",
+        "sensor_tps_ms2_capture_closed" to "Capture closed (0%)",
+        "sensor_tps_ms2_capture_wot" to "Capture WOT (100%)",
+        "sensor_tps_ms2_closed_label" to "Closed (0%) ADC",
+        "sensor_tps_ms2_wot_label" to "WOT (100%) ADC",
+        "sensor_tps_ms2_save" to "Save",
+        "sensor_tps_ms2_invalid" to "Invalid values: closed must be lower than WOT, both within 0-1023 and at least 100 counts apart.",
     )
 
     val ID = mapOf(
@@ -3282,6 +3322,16 @@ object Translations {
         "ms2_idle_err_closed_limit" to "The closed position exceeds the allowed maximum.",
         "ms2_idle_err_closed_below_open" to "The closed position must be lower than the open position.",
         "ms2_idle_err_rpm_range" to "Target RPM at point %1\$d must be between 500 and 2000.",
+        "btn_cancel" to "Batal",
+        "sensor_tps_ms2_title" to "TPS calibration (MS2)",
+        "sensor_tps_ms2_instructions" to "Engine off, ignition on. Release the throttle and tap \"Capture closed\", then open it fully and tap \"Capture WOT\". You can adjust the values manually before saving.",
+        "sensor_tps_ms2_live_adc" to "Live TPS ADC: %1\$d",
+        "sensor_tps_ms2_capture_closed" to "Capture closed (0%)",
+        "sensor_tps_ms2_capture_wot" to "Capture WOT (100%)",
+        "sensor_tps_ms2_closed_label" to "Closed (0%) ADC",
+        "sensor_tps_ms2_wot_label" to "WOT (100%) ADC",
+        "sensor_tps_ms2_save" to "Save",
+        "sensor_tps_ms2_invalid" to "Invalid values: closed must be lower than WOT, both within 0-1023 and at least 100 counts apart.",
     )
 
     val ZH = mapOf(
@@ -3769,6 +3819,16 @@ object Translations {
         "ms2_idle_err_closed_limit" to "The closed position exceeds the allowed maximum.",
         "ms2_idle_err_closed_below_open" to "The closed position must be lower than the open position.",
         "ms2_idle_err_rpm_range" to "Target RPM at point %1\$d must be between 500 and 2000.",
+        "btn_cancel" to "取消",
+        "sensor_tps_ms2_title" to "TPS calibration (MS2)",
+        "sensor_tps_ms2_instructions" to "Engine off, ignition on. Release the throttle and tap \"Capture closed\", then open it fully and tap \"Capture WOT\". You can adjust the values manually before saving.",
+        "sensor_tps_ms2_live_adc" to "Live TPS ADC: %1\$d",
+        "sensor_tps_ms2_capture_closed" to "Capture closed (0%)",
+        "sensor_tps_ms2_capture_wot" to "Capture WOT (100%)",
+        "sensor_tps_ms2_closed_label" to "Closed (0%) ADC",
+        "sensor_tps_ms2_wot_label" to "WOT (100%) ADC",
+        "sensor_tps_ms2_save" to "Save",
+        "sensor_tps_ms2_invalid" to "Invalid values: closed must be lower than WOT, both within 0-1023 and at least 100 counts apart.",
     )
 
     fun forLanguage(language: AppLanguage): Map<String, String> {
