@@ -182,7 +182,11 @@ internal fun SettingsScreen(controller: DesktopSpeeduinoController) {
 
                 ImportedDashboardsSection(
                     activeId = draftSettings.importedDashboardId,
-                    onActiveChange = { draftSettings = draftSettings.copy(importedDashboardId = it) },
+                    onActiveChange = {
+                        // Aplica na hora: o dashboard importado não deve depender do botão Salvar.
+                        draftSettings = draftSettings.copy(importedDashboardId = it)
+                        controller.saveDesktopSettings(draftSettings)
+                    },
                 )
 
                 DropdownField(
