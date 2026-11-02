@@ -157,7 +157,8 @@ internal fun ScreenHost(
             onOpenTriggerSettings = onOpenTriggerSettings,
             onOpenIdleControl = onOpenIdleControl,
             onOpenEngineProtection = onOpenEngineProtection,
-            onOpenClosedLoopCorrections = onOpenClosedLoopCorrections
+            onOpenClosedLoopCorrections = onOpenClosedLoopCorrections,
+            onOpenRoute = onOpenRoute
         )
         DesktopRoute.EngineOperation,
         DesktopRoute.IdleControl,
@@ -178,6 +179,17 @@ internal fun ScreenHost(
             onOpenIdleControl = onOpenIdleControl,
             onOpenEngineProtection = onOpenEngineProtection,
             onOpenClosedLoopCorrections = onOpenClosedLoopCorrections
+        )
+        DesktopRoute.Ms2Wue -> com.speeduino.manager.desktop.feature.configs.Ms2WueScreen(
+            isConnected = connectionState.isConnected,
+            backend = controller.ms2CurveBackend,
+            onBack = { onOpenRoute(DesktopRoute.EngineSetup) },
+        )
+        DesktopRoute.Ms2Idle -> com.speeduino.manager.desktop.feature.configs.Ms2IdleScreen(
+            isConnected = connectionState.isConnected,
+            backend = controller.ms2CurveBackend,
+            liveData = liveData,
+            onBack = { onOpenRoute(DesktopRoute.EngineSetup) },
         )
         DesktopRoute.Tools,
         DesktopRoute.LogsEcuTools,

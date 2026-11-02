@@ -54,7 +54,9 @@ internal enum class DesktopRoute(
     LogAnalyzer("route.logAnalyzer", "route.logAnalyzer", Icons.Default.Build),
     BeforeAfter("route.beforeAfter", "route.beforeAfter", Icons.Default.Build),
     VirtualDyno("route.virtualDyno", "route.virtualDyno", Icons.Default.Build),
-    LogsEcuTools("route.logsEcuTools", "label.logsEcuToolsTitle", Icons.Default.Build)
+    LogsEcuTools("route.logsEcuTools", "label.logsEcuToolsTitle", Icons.Default.Build),
+    Ms2Wue("ms2_wue_title", "ms2_wue_title", Icons.Default.Settings),
+    Ms2Idle("ms2_idle_title", "ms2_idle_title", Icons.Default.Settings)
 }
 
 internal fun selectedNavRoute(route: DesktopRoute): DesktopRoute {
@@ -81,7 +83,9 @@ internal fun parentRoute(route: DesktopRoute): DesktopRoute? {
         DesktopRoute.InputOutputConfig,
         DesktopRoute.EngineConstants,
         DesktopRoute.SensorsConfig,
-        DesktopRoute.SecondarySerial -> DesktopRoute.EngineSetup
+        DesktopRoute.SecondarySerial,
+        DesktopRoute.Ms2Wue,
+        DesktopRoute.Ms2Idle -> DesktopRoute.EngineSetup
         DesktopRoute.IdleControl,
         DesktopRoute.ClosedLoopCorrections,
         DesktopRoute.EngineProtection -> DesktopRoute.EngineOperation

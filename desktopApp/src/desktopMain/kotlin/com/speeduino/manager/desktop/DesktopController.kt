@@ -787,6 +787,14 @@ internal class DesktopSpeeduinoController(
         }.onFailure { _lastError.value = it.message }
     }
 
+    /** Curvas .ini e campos escalares da MS2 (WUE, marcha lenta com motor de passo). */
+    internal val ms2CurveBackend = com.speeduino.manager.desktop.feature.configs.Ms2CurveBackend(
+        read = { name -> runCatching { requireNotNull(withPausedLiveDataStream { it.readIniCurve(name) }) { "ECU não conectada." } } },
+        write = { name, values -> runCatching { requireNotNull(withPausedLiveDataStream { it.writeIniCurve(name, values) }) { "ECU não conectada." }; Unit } },
+        readFields = { names -> runCatching { requireNotNull(withPausedLiveDataStream { it.readMegaSpeedFieldValues(names) }) { "ECU não conectada." } } },
+        writeField = { name, value -> runCatching { requireNotNull(withPausedLiveDataStream { it.writeMegaSpeedConfigField(name, value) ; true }) { "ECU não conectada." }; Unit } },
+    )
+
     suspend fun readTpsCalibration(): TpsCalibration? = withContext(Dispatchers.IO) {
         try {
             withPausedLiveDataStream { it.readTpsCalibration() }

@@ -34,7 +34,8 @@ internal fun ConfigsRouteHost(
     onOpenTriggerSettings: () -> Unit,
     onOpenIdleControl: () -> Unit,
     onOpenEngineProtection: () -> Unit,
-    onOpenClosedLoopCorrections: () -> Unit
+    onOpenClosedLoopCorrections: () -> Unit,
+    onOpenRoute: (DesktopRoute) -> Unit = {}
 ) {
     when (route) {
         DesktopRoute.Ignition -> IgnitionScreenDesktop(
@@ -51,7 +52,9 @@ internal fun ConfigsRouteHost(
             onOpenSensorCalibration = onOpenSensorCalibration,
             onOpenInjectorConfig = onOpenInjectorConfig,
             onOpenSecondarySerial = onOpenSecondarySerial,
-            onOpenIgnitionConfig = onOpenIgnitionConfig
+            onOpenIgnitionConfig = onOpenIgnitionConfig,
+            controller = controller,
+            onOpenRoute = onOpenRoute
         )
         DesktopRoute.EngineOperation -> EngineOperationScreenDesktop(
             onOpenIdleControl = onOpenIdleControl,

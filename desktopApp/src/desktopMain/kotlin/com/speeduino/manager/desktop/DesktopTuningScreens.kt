@@ -171,8 +171,12 @@ internal fun ConfigsTuningScreenDesktop(
     onOpenInjectorConfig: () -> Unit,
     onOpenSecondarySerial: () -> Unit,
     onOpenIgnitionConfig: () -> Unit,
+    controller: DesktopSpeeduinoController? = null,
+    onOpenRoute: (com.speeduino.manager.desktop.navigation.DesktopRoute) -> Unit = {},
 ) {
     val strings = LocalStrings.current
+    val firmware = controller?.firmwareInfo?.collectAsState()?.value
+    val isMs2 = firmware?.family == io.ecucore.model.EcuFamily.MS2
     KioskScreenScaffold(
         title = strings["route.configsTuning"],
         subtitle = strings["label.configsTuningSubtitle"],
@@ -181,6 +185,10 @@ internal fun ConfigsTuningScreenDesktop(
             KioskFeatureCard(strings["label.engineConstantsTitle"], strings["label.engineConstantsSubtitle"], onClick = onOpenEngineConstants)
             KioskFeatureCard(strings["label.injectorConfigTitle"], strings["label.injectorConfigSubtitle"], onClick = onOpenInjectorConfig)
             KioskFeatureCard(strings["label.ignitionConfigTitle"], strings["label.ignitionConfigSubtitle"], onClick = onOpenIgnitionConfig)
+            if (isMs2) {
+                KioskFeatureCard(strings["ms2_wue_title"], strings["ms2_wue_card_desc"], onClick = { onOpenRoute(com.speeduino.manager.desktop.navigation.DesktopRoute.Ms2Wue) })
+                KioskFeatureCard(strings["ms2_idle_title"], strings["ms2_idle_card_desc"], onClick = { onOpenRoute(com.speeduino.manager.desktop.navigation.DesktopRoute.Ms2Idle) })
+            }
         }
         KioskPanelCard(strings["label.hardwareSection"]) {
             KioskFeatureCard(strings["label.inputOutputTitle"], strings["label.inputOutputDesc"], onClick = onOpenInputOutput)
