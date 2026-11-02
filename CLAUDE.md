@@ -85,6 +85,10 @@ Desktop-only additions live in `jvmMain`/`desktopMain`: `EcuProtocol`, `EcuClien
 
 `desktopApp/src/iosMain` is a separate, simpler app shell (`Main.kt: createAppViewController()`): three-tab bottom navigation (Home/Dashboard/Settings) with an in-tab back-stack, screens under `screens/Ios*.kt`. It does not reuse `desktopMain`'s navigation system — it's a parallel, iOS-idiomatic UI over the same `shared` core.
 
+## Paridade com o app Android (EcuManager)
+
+O app Android (`~/Projects/EcuManager`) e este projeto devem evoluir juntos. A lógica comum vive no submódulo `ecu-core` (mesmo pin nos dois). Telas Compose são portadas à mão: `scripts/import_android_strings.py '<regex>'` copia chaves de `res/values*/strings.xml` do Android para `Localization.kt` (chave Android = chave do Desktop, idempotente, 6 idiomas; ms não existe no Desktop). Telas portadas usam `LocalStrings.current` (`strings["chave"]`, `strings.format(...)`) no lugar de `stringResource`.
+
 ## Docs in this repo
 
 `docs/PLAN.md` and `docs/ARCHITECTURE.md` are early planning documents (in Portuguese) written before the KMP project existed and describe an initial Linux-only scope — they're out of date relative to the current multi-platform (desktop + iOS), multi-ECU-family (Speeduino/MS2/MS3/rusEFI) state of the code. Prefer reading the actual source over these when they conflict. `docs/BUILD.md` is similarly a planning doc with placeholder command names, not the current build instructions.

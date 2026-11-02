@@ -1034,6 +1034,14 @@ object Translations {
         "dashboard_import_dialog_title" to "Import dashboard",
         "dashboard_import_dialog_message" to "Select a RealDash .rd file. It will be saved in the app.",
         "dashboard_import_dialog_confirm" to "Choose file",
+        "offline_banner_text" to "Offline — saved data from %1\$s (read-only)",
+        "offline_banner_exit" to "Exit offline",
+        "home_offline_browse_title" to "Browse offline",
+        "home_offline_browse_desc" to "View saved maps and settings without connecting. Read-only.",
+        "home_offline_none" to "No saved data yet — connect to your ECU once to enable offline browsing.",
+        "offline_session_picker_title" to "Choose saved ECU data",
+        "offline_read_only_hint" to "Offline data · read-only · connect to edit",
+        "offline_session_no_ini" to "Saved without its definition file (.ini): some screens may be unavailable.",
     )
 
     val PT = mapOf(
@@ -1958,6 +1966,14 @@ object Translations {
         "dashboard_import_dialog_title" to "Importar dashboard",
         "dashboard_import_dialog_message" to "Selecione um arquivo .rd do RealDash. Ele ficará salvo no app.",
         "dashboard_import_dialog_confirm" to "Escolher arquivo",
+        "offline_banner_text" to "Offline — dados salvos de %1\$s (somente leitura)",
+        "offline_banner_exit" to "Sair do offline",
+        "home_offline_browse_title" to "Navegar offline",
+        "home_offline_browse_desc" to "Veja mapas e ajustes salvos sem conectar. Somente leitura.",
+        "home_offline_none" to "Ainda não há dados salvos — conecte na ECU uma vez para habilitar a navegação offline.",
+        "offline_session_picker_title" to "Escolha os dados salvos da ECU",
+        "offline_read_only_hint" to "Dados offline · somente leitura · conecte para editar",
+        "offline_session_no_ini" to "Salvo sem o arquivo de definição (.ini): algumas telas podem ficar indisponíveis.",
     )
 
     val ES = mapOf(
@@ -2520,6 +2536,14 @@ object Translations {
         "dashboard_import_dialog_title" to "Importar panel",
         "dashboard_import_dialog_message" to "Selecciona un archivo .rd de RealDash. Quedará guardado en la app.",
         "dashboard_import_dialog_confirm" to "Elegir archivo",
+        "offline_banner_text" to "Sin conexión — datos guardados de %1\$s (solo lectura)",
+        "offline_banner_exit" to "Salir del modo sin conexión",
+        "home_offline_browse_title" to "Navegar sin conexión",
+        "home_offline_browse_desc" to "Consulta mapas y ajustes guardados sin conectar. Solo lectura.",
+        "home_offline_none" to "Aún no hay datos guardados — conecta tu ECU una vez para habilitar la navegación sin conexión.",
+        "offline_session_picker_title" to "Elige los datos guardados de la ECU",
+        "offline_read_only_hint" to "Datos sin conexión · solo lectura · conecta para editar",
+        "offline_session_no_ini" to "Guardado sin su archivo de definición (.ini): algunas pantallas pueden no estar disponibles.",
     )
 
     val FR = mapOf(
@@ -3082,6 +3106,14 @@ object Translations {
         "dashboard_import_dialog_title" to "Importer un tableau de bord",
         "dashboard_import_dialog_message" to "Sélectionnez un fichier .rd de RealDash. Il sera enregistré dans l'application.",
         "dashboard_import_dialog_confirm" to "Choisir un fichier",
+        "offline_banner_text" to "Hors ligne — données enregistrées de %1\$s (lecture seule)",
+        "offline_banner_exit" to "Quitter le mode hors ligne",
+        "home_offline_browse_title" to "Naviguer hors ligne",
+        "home_offline_browse_desc" to "Consultez les cartes et réglages enregistrés sans vous connecter. Lecture seule.",
+        "home_offline_none" to "Aucune donnée enregistrée — connectez votre ECU une fois pour activer la navigation hors ligne.",
+        "offline_session_picker_title" to "Choisir les données ECU enregistrées",
+        "offline_read_only_hint" to "Données hors ligne · lecture seule · connectez pour modifier",
+        "offline_session_no_ini" to "Enregistré sans son fichier de définition (.ini) : certains écrans peuvent être indisponibles.",
     )
 
     val ID = mapOf(
@@ -3644,6 +3676,14 @@ object Translations {
         "dashboard_import_dialog_title" to "Impor dasbor",
         "dashboard_import_dialog_message" to "Pilih file .rd dari RealDash. File akan disimpan di aplikasi.",
         "dashboard_import_dialog_confirm" to "Pilih file",
+        "offline_banner_text" to "Offline — data tersimpan dari %1\$s (hanya baca)",
+        "offline_banner_exit" to "Keluar offline",
+        "home_offline_browse_title" to "Jelajah offline",
+        "home_offline_browse_desc" to "Lihat peta dan pengaturan tersimpan tanpa terhubung. Hanya baca.",
+        "home_offline_none" to "Belum ada data tersimpan — hubungkan ECU sekali untuk mengaktifkan mode offline.",
+        "offline_session_picker_title" to "Pilih data ECU tersimpan",
+        "offline_read_only_hint" to "Data offline · hanya baca · hubungkan untuk mengedit",
+        "offline_session_no_ini" to "Disimpan tanpa file definisi (.ini): beberapa layar mungkin tidak tersedia.",
     )
 
     val ZH = mapOf(
@@ -4202,6 +4242,14 @@ object Translations {
         "dashboard_import_dialog_title" to "导入仪表板",
         "dashboard_import_dialog_message" to "选择 RealDash 的 .rd 文件。它将保存在应用中。",
         "dashboard_import_dialog_confirm" to "选择文件",
+        "offline_banner_text" to "离线 — 来自 %1\$s 的已保存数据（只读）",
+        "offline_banner_exit" to "退出离线",
+        "home_offline_browse_title" to "离线浏览",
+        "home_offline_browse_desc" to "无需连接即可查看已保存的图表和设置。只读。",
+        "home_offline_none" to "暂无已保存数据 — 请先连接一次 ECU 以启用离线浏览。",
+        "offline_session_picker_title" to "选择已保存的 ECU 数据",
+        "offline_read_only_hint" to "离线数据 · 只读 · 连接后可编辑",
+        "offline_session_no_ini" to "保存时没有定义文件 (.ini)：部分页面可能不可用。",
     )
 
     fun forLanguage(language: AppLanguage): Map<String, String> {

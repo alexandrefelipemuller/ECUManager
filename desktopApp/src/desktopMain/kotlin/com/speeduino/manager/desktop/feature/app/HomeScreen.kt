@@ -108,7 +108,49 @@ internal fun HomeScreenDesktop(
         onOpenRoute(route)
     }
 
+    val offlineSession by controller.offlineSession.collectAsState()
+    var showOfflinePicker by remember { mutableStateOf(false) }
+    val offlineOptions = remember(connectionState.isConnected, offlineSession) { controller.offlineSessionOptions() }
+
+    if (showOfflinePicker) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { showOfflinePicker = false },
+            title = { Text(strings["offline_session_picker_title"]) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    offlineOptions.take(12).forEach { option ->
+                        OutlinedButton(
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = { showOfflinePicker = false; controller.enterOfflineBrowse(option) },
+                        ) { Text(option.label, maxLines = 1) }
+                    }
+                }
+            },
+            confirmButton = {},
+            dismissButton = { androidx.compose.material3.TextButton(onClick = { showOfflinePicker = false }) { Text(strings["action.cancel"]) } },
+        )
+    }
+
     KioskScreenScaffold(title = strings["route.home"], subtitle = strings["home.subtitle"]) {
+        if (!connectionState.isConnected && offlineSession == null) {
+            if (offlineOptions.isNotEmpty()) {
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(10.dp),
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                ) {
+                    Column(Modifier.fillMaxWidth().padding(10.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text(strings["home_offline_browse_title"], style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Medium)
+                        Text(strings["home_offline_browse_desc"], style = MaterialTheme.typography.labelSmall)
+                        OutlinedButton(onClick = { showOfflinePicker = true }, contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)) {
+                            Text(strings["home_offline_browse_title"], style = MaterialTheme.typography.labelSmall)
+                        }
+                    }
+                }
+            } else {
+                Text(strings["home_offline_none"], style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
         Surface(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(10.dp),

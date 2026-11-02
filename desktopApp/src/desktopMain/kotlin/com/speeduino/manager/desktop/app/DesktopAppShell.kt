@@ -162,6 +162,25 @@ internal fun DesktopAppShell() {
     Box(modifier = Modifier.fillMaxSize().background(backgroundBrush)) {
         Column(modifier = Modifier.fillMaxSize()) {
             DisconnectedBanner(connectionState)
+            val offlineSession by controller.offlineSession.collectAsState()
+            offlineSession?.let { session ->
+                androidx.compose.material3.Surface(color = androidx.compose.ui.graphics.Color(0xFF3B4A6B), modifier = Modifier.fillMaxWidth()) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 2.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            strings.format("offline_banner_text", session.label),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = androidx.compose.ui.graphics.Color.White,
+                        )
+                        androidx.compose.material3.TextButton(onClick = controller::exitOfflineBrowse) {
+                            Text(strings["offline_banner_exit"], color = androidx.compose.ui.graphics.Color.White)
+                        }
+                    }
+                }
+            }
             Row(
                 modifier = Modifier.weight(1f).padding(6.dp),
                 horizontalArrangement = Arrangement.spacedBy(6.dp)

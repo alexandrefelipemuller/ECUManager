@@ -248,6 +248,7 @@ internal class DesktopSpeeduinoController(
     init {
         refreshIniDefinitions()
         maybeAutoConnect()
+        scope.launch { _connectionState.collect { if (it.isConnected) exitOfflineBrowse() } }
     }
 
     fun connectTcp(host: String, port: Int) {
@@ -1090,6 +1091,45 @@ internal class DesktopSpeeduinoController(
         }
     }
 
+    /** Sessão salva aberta no modo "navegar offline" (somente leitura, sem ECU). */
+    internal data class OfflineSession(val label: String, val dir: File)
+
+    private val _offlineSession = MutableStateFlow<OfflineSession?>(null)
+    internal val offlineSession = _offlineSession.asStateFlow()
+
+    /** Sessões salvas que podem ser abertas offline, da mais recente para a mais antiga. */
+    internal fun offlineSessionOptions(): List<OfflineSession> {
+        val pageFile = Regex("page_-?\\d+\\.bin")
+        val sessions = configManager.listSavedConfigs().map { OfflineSession(it.name, it) } +
+            restorePointStore.list().map { OfflineSession("★ " + (it.name ?: it.id), it.dir) }
+        return sessions.filter { s -> s.dir.listFiles()?.any { pageFile.matches(it.name) } == true }
+    }
+
+    internal fun enterOfflineBrowse(session: OfflineSession) {
+        if (_connectionState.value.isConnected) return
+        scope.launch(Dispatchers.IO) {
+            runCatching { loadTablesFromSession(session.dir) }
+                .onSuccess { _offlineSession.value = session }
+                .onFailure { _lastError.value = it.message }
+        }
+    }
+
+    internal fun exitOfflineBrowse() {
+        if (_offlineSession.value == null) return
+        _offlineSession.value = null
+        if (localSessionDir == null) {
+            _engineConstants.value = null
+            _triggerSettings.value = null
+            _veTable.value = null
+            _veTable2.value = null
+            _ignitionTable.value = null
+            _ignitionTable2.value = null
+            _afrTable.value = null
+            _idleControlSettings.value = null
+            _closedLoopCorrections.value = null
+        }
+    }
+
     /** Log aberto na tela "Log no mapa". */
     val logMapPath = MutableStateFlow<String?>(null)
 
@@ -1398,6 +1438,7 @@ internal class DesktopSpeeduinoController(
     }
 
     private fun ensureLocalSessionDir(): File? {
+        if (_offlineSession.value != null) return null   // modo offline é somente leitura: nunca altera a sessão salva
         if (localSessionDir == null) {
             localSessionDir = ecuSessionDir
         }
