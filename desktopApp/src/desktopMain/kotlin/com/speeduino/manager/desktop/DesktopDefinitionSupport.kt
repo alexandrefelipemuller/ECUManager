@@ -99,6 +99,8 @@ internal data class DesktopSettingsState(
     val firstBootLivePanelDone: Boolean = false,
     val dashboardMode: DesktopDashboardMode = DesktopDashboardMode.DEFAULT,
     val initialScreen: InitialScreen = InitialScreen.HOME,
+    /** Id do dashboard RealDash (.rd) importado ativo; `null` = usa o dashboard embutido. */
+    val importedDashboardId: String? = null,
 )
 
 internal data class ManualFirmwareProfileOption(
@@ -312,6 +314,7 @@ internal object DesktopSettingsStore {
     private const val KEY_FIRST_BOOT_LIVE_PANEL_DONE = "first_boot_live_panel_done"
     private const val KEY_DASHBOARD_MODE = "dashboard_mode"
     private const val KEY_INITIAL_SCREEN = "initial_screen"
+    private const val KEY_IMPORTED_DASHBOARD_ID = "imported_dashboard_id"
 
     fun settingsDir(): File = File(System.getProperty("user.home"), ".speeduino-manager-desktop").apply { mkdirs() }
 
@@ -387,6 +390,7 @@ internal object DesktopSettingsStore {
         val firstBootOutputsDone = properties.getProperty(KEY_FIRST_BOOT_OUTPUTS_DONE)?.toBooleanStrictOrNull() ?: false
         val firstBootLivePanelDone = properties.getProperty(KEY_FIRST_BOOT_LIVE_PANEL_DONE)?.toBooleanStrictOrNull() ?: false
         val dashboardMode = runCatching { DesktopDashboardMode.valueOf(properties.getProperty(KEY_DASHBOARD_MODE) ?: DesktopDashboardMode.DEFAULT.name) }.getOrDefault(DesktopDashboardMode.DEFAULT)
+        val importedDashboardId = properties.getProperty(KEY_IMPORTED_DASHBOARD_ID)?.takeIf { it.isNotBlank() }
         val initialScreen = runCatching { InitialScreen.valueOf(properties.getProperty(KEY_INITIAL_SCREEN) ?: InitialScreen.HOME.name) }.getOrDefault(InitialScreen.HOME)
         return DesktopSettingsState(
             unitSystem = unitSystem,
@@ -416,6 +420,7 @@ internal object DesktopSettingsStore {
             firstBootOutputsDone = firstBootOutputsDone,
             firstBootLivePanelDone = firstBootLivePanelDone,
             dashboardMode = dashboardMode,
+            importedDashboardId = importedDashboardId,
             initialScreen = initialScreen,
         )
     }
@@ -478,6 +483,7 @@ internal object DesktopSettingsStore {
         properties.setProperty(KEY_FIRST_BOOT_LIVE_PANEL_DONE, settings.firstBootLivePanelDone.toString())
         properties.setProperty(KEY_DASHBOARD_MODE, settings.dashboardMode.name)
         properties.setProperty(KEY_INITIAL_SCREEN, settings.initialScreen.name)
+        if (settings.importedDashboardId != null) properties.setProperty(KEY_IMPORTED_DASHBOARD_ID, settings.importedDashboardId) else properties.remove(KEY_IMPORTED_DASHBOARD_ID)
         storeProperties(settingsFile(), properties)
     }
 

@@ -23,6 +23,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -75,6 +76,30 @@ private val APEX_GAUGE_FACE = Color(0xFFEFEDEB)
 
 @Composable
 internal fun DashboardScreen(
+    controller: DesktopSpeeduinoController,
+    liveData: EcuLiveData?,
+    connectionState: ConnectionState,
+    onOpenSettings: () -> Unit
+) {
+    val importedId = controller.desktopSettings.collectAsState().value.importedDashboardId
+    val store = remember { com.speeduino.manager.desktop.realdash.ImportedDashboardStore() }
+    val imported = remember(importedId) { importedId?.let(store::load) }
+    if (imported != null) {
+        Box(modifier = Modifier.fillMaxSize().background(Color(0xFF0D0D0C))) {
+            com.speeduino.manager.desktop.realdash.ImportedDashboardView(
+                dash = imported,
+                assetKey = importedId.orEmpty(),
+                liveData = liveData,
+                modifier = Modifier.fillMaxSize().padding(10.dp),
+            )
+        }
+    } else {
+        BuiltInDashboardScreen(controller, liveData, connectionState, onOpenSettings)
+    }
+}
+
+@Composable
+private fun BuiltInDashboardScreen(
     controller: DesktopSpeeduinoController,
     liveData: EcuLiveData?,
     connectionState: ConnectionState,

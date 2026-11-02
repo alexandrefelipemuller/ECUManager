@@ -169,6 +169,11 @@ internal fun SettingsScreen(controller: DesktopSpeeduinoController) {
                     )
                 }
 
+                ImportedDashboardsSection(
+                    activeId = draftSettings.importedDashboardId,
+                    onActiveChange = { draftSettings = draftSettings.copy(importedDashboardId = it) },
+                )
+
                 DropdownField(
                     label = strings["label.connectionType"],
                     value = connectionTypeLabel(draftSettings.lastConnectionType ?: ConnectionType.TCP, strings),
@@ -522,5 +527,40 @@ private fun diagnosticLoggerLabel(mode: DiagnosticLoggerMode, strings: com.speed
         DiagnosticLoggerMode.OFF -> strings["label.off"]
         DiagnosticLoggerMode.TOOTH -> strings["label.tooth"]
         DiagnosticLoggerMode.COMPOSITE -> strings["label.composite"]
+    }
+}
+
+/** Gerencia os dashboards RealDash (.rd) importados: escolher o ativo, importar e excluir. */
+@Composable
+private fun ImportedDashboardsSection(activeId: String?, onActiveChange: (String?) -> Unit) {
+    val strings = LocalStrings.current
+    val store = remember { com.speeduino.manager.desktop.realdash.ImportedDashboardStore() }
+    var items by remember { mutableStateOf(store.list()) }
+    var message by remember { mutableStateOf<String?>(null) }
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Text(strings["dashboard_import_dialog_title"], style = MaterialTheme.typography.titleSmall)
+        Text(strings["dashboard_import_dialog_message"], style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        items.forEach { info ->
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                androidx.compose.material3.RadioButton(selected = info.id == activeId, onClick = { onActiveChange(if (info.id == activeId) null else info.id) })
+                Text(info.name, modifier = Modifier.weight(1f))
+                androidx.compose.material3.TextButton(onClick = {
+                    store.delete(info.id)
+                    items = store.list()
+                    if (activeId == info.id) onActiveChange(null)
+                }) { Text(strings["dashboard_import_delete"]) }
+            }
+        }
+        FilledTonalButton(onClick = {
+            val file = chooseOpenFile(strings["dashboard_import_dialog_title"]) ?: return@FilledTonalButton
+            runCatching { store.import(file.readBytes(), file.name) }
+                .onSuccess { info ->
+                    items = store.list()
+                    onActiveChange(info.id)
+                    message = strings.format("dashboard_import_success", info.name)
+                }
+                .onFailure { message = strings["dashboard_import_failed"] + ": " + (it.message ?: "") }
+        }) { Text(strings["dashboard_import_dialog_confirm"]) }
+        message?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
     }
 }

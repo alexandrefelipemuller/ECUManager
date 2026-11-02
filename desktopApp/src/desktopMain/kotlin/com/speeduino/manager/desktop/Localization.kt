@@ -1020,6 +1020,13 @@ object Translations {
         "log_map_play" to "Play",
         "log_map_pause" to "Pause",
         "log_map_follow" to "Follow",
+        "dashboard_import_entry" to "Import...",
+        "dashboard_import_success" to "Dashboard \"%1\$s\" imported",
+        "dashboard_import_failed" to "Could not import the .rd file",
+        "dashboard_import_delete" to "Delete imported dashboard",
+        "dashboard_import_dialog_title" to "Import dashboard",
+        "dashboard_import_dialog_message" to "Select a RealDash .rd file. It will be saved in the app.",
+        "dashboard_import_dialog_confirm" to "Choose file",
     )
 
     val PT = mapOf(
@@ -1937,6 +1944,13 @@ object Translations {
         "log_map_play" to "Reproduzir",
         "log_map_pause" to "Pausar",
         "log_map_follow" to "Seguir",
+        "dashboard_import_entry" to "Importar...",
+        "dashboard_import_success" to "Dashboard \"%1\$s\" importado",
+        "dashboard_import_failed" to "Não foi possível importar o arquivo .rd",
+        "dashboard_import_delete" to "Excluir dashboard importado",
+        "dashboard_import_dialog_title" to "Importar dashboard",
+        "dashboard_import_dialog_message" to "Selecione um arquivo .rd do RealDash. Ele ficará salvo no app.",
+        "dashboard_import_dialog_confirm" to "Escolher arquivo",
     )
 
     val ES = mapOf(
@@ -2492,6 +2506,13 @@ object Translations {
         "log_map_play" to "Reproducir",
         "log_map_pause" to "Pausar",
         "log_map_follow" to "Seguir",
+        "dashboard_import_entry" to "Importar...",
+        "dashboard_import_success" to "Panel \"%1\$s\" importado",
+        "dashboard_import_failed" to "No se pudo importar el archivo .rd",
+        "dashboard_import_delete" to "Eliminar panel importado",
+        "dashboard_import_dialog_title" to "Importar panel",
+        "dashboard_import_dialog_message" to "Selecciona un archivo .rd de RealDash. Quedará guardado en la app.",
+        "dashboard_import_dialog_confirm" to "Elegir archivo",
     )
 
     val FR = mapOf(
@@ -3047,6 +3068,13 @@ object Translations {
         "log_map_play" to "Lecture",
         "log_map_pause" to "Pause",
         "log_map_follow" to "Suivre",
+        "dashboard_import_entry" to "Importer...",
+        "dashboard_import_success" to "Tableau de bord « %1\$s » importé",
+        "dashboard_import_failed" to "Impossible d'importer le fichier .rd",
+        "dashboard_import_delete" to "Supprimer le tableau de bord importé",
+        "dashboard_import_dialog_title" to "Importer un tableau de bord",
+        "dashboard_import_dialog_message" to "Sélectionnez un fichier .rd de RealDash. Il sera enregistré dans l'application.",
+        "dashboard_import_dialog_confirm" to "Choisir un fichier",
     )
 
     val ID = mapOf(
@@ -3602,6 +3630,13 @@ object Translations {
         "log_map_play" to "Putar",
         "log_map_pause" to "Jeda",
         "log_map_follow" to "Ikuti",
+        "dashboard_import_entry" to "Impor...",
+        "dashboard_import_success" to "Dasbor \"%1\$s\" diimpor",
+        "dashboard_import_failed" to "Tidak dapat mengimpor file .rd",
+        "dashboard_import_delete" to "Hapus dasbor yang diimpor",
+        "dashboard_import_dialog_title" to "Impor dasbor",
+        "dashboard_import_dialog_message" to "Pilih file .rd dari RealDash. File akan disimpan di aplikasi.",
+        "dashboard_import_dialog_confirm" to "Pilih file",
     )
 
     val ZH = mapOf(
@@ -4153,6 +4188,13 @@ object Translations {
         "log_map_play" to "播放",
         "log_map_pause" to "暂停",
         "log_map_follow" to "跟随",
+        "dashboard_import_entry" to "导入...",
+        "dashboard_import_success" to "已导入仪表板“%1\$s”",
+        "dashboard_import_failed" to "无法导入 .rd 文件",
+        "dashboard_import_delete" to "删除已导入的仪表板",
+        "dashboard_import_dialog_title" to "导入仪表板",
+        "dashboard_import_dialog_message" to "选择 RealDash 的 .rd 文件。它将保存在应用中。",
+        "dashboard_import_dialog_confirm" to "选择文件",
     )
 
     fun forLanguage(language: AppLanguage): Map<String, String> {
