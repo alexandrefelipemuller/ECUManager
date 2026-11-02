@@ -1,5 +1,6 @@
 package com.speeduino.manager.desktop.feature.configs
 
+import com.speeduino.manager.desktop.ReportUnsavedChanges
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -42,6 +43,7 @@ internal fun InjectorConfigScreenDesktop(controller: DesktopSpeeduinoController)
     val voltageBins = remember(constants) { mutableStateListOf(*(constants?.batteryVoltageBins ?: listOf(6f, 8f, 10f, 12f, 14f, 16f)).map { it.toString() }.toTypedArray()) }
     val correctionRates = remember(constants) { mutableStateListOf(*(constants?.injectorVoltageCorrectionRates ?: listOf(160, 135, 115, 100, 92, 88)).map { it.toString() }.toTypedArray()) }
     var hasChanges by remember { mutableStateOf(false) }
+    ReportUnsavedChanges(hasChanges)
 
     LaunchedEffect(constants) {
         hasChanges = false

@@ -1,5 +1,6 @@
 package com.speeduino.manager.desktop.feature.configs
 
+import com.speeduino.manager.desktop.ReportUnsavedChanges
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -54,6 +55,7 @@ internal fun IgnitionConfigScreenDesktop(controller: DesktopSpeeduinoController)
     var primarySpeed by remember(trigger) { mutableStateOf(trigger?.primaryTriggerSpeed ?: TriggerSettings.TriggerSpeed.CRANK) }
     var filter by remember(trigger) { mutableStateOf(trigger?.triggerFilter ?: TriggerSettings.TriggerFilter.OFF) }
     var hasChanges by remember { mutableStateOf(false) }
+    ReportUnsavedChanges(hasChanges)
 
     LaunchedEffect(constants, trigger) { hasChanges = false }
 

@@ -1,5 +1,6 @@
 package com.speeduino.manager.desktop.feature.configs
 
+import com.speeduino.manager.desktop.ReportUnsavedChanges
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -86,6 +87,7 @@ internal fun EngineConstantsScreenDesktop(controller: DesktopSpeeduinoController
     var channel3Angle by remember(constants) { mutableStateOf(constants?.channel3Angle?.toString() ?: "270") }
     var channel4Angle by remember(constants) { mutableStateOf(constants?.channel4Angle?.toString() ?: "360") }
     var hasChanges by remember { mutableStateOf(false) }
+    ReportUnsavedChanges(hasChanges)
 
     LaunchedEffect(constants) {
         hasChanges = false
@@ -273,6 +275,7 @@ internal fun TriggerSettingsScreenDesktop(controller: DesktopSpeeduinoController
     var filter by remember(settings) { mutableStateOf(settings?.triggerFilter ?: TriggerSettings.TriggerFilter.OFF) }
     var reSyncEveryCycle by remember(settings) { mutableStateOf(settings?.reSyncEveryCycle ?: false) }
     var hasChanges by remember { mutableStateOf(false) }
+    ReportUnsavedChanges(hasChanges)
 
     LaunchedEffect(settings) {
         hasChanges = false
@@ -696,6 +699,7 @@ internal fun EngineProtectionScreenDesktop() {
     var afrProtectEnabled by remember { mutableStateOf(false) }
     var coolantProtectEnabled by remember { mutableStateOf(false) }
     var hasChanges by remember { mutableStateOf(false) }
+    ReportUnsavedChanges(hasChanges)
 
     Column(
         modifier = Modifier.fillMaxWidth(),

@@ -233,6 +233,7 @@ private fun <T> MapTableScreen(
     val strings = LocalStrings.current
     var workingTable by remember(table) { mutableStateOf(table) }
     var hasChanges by remember { mutableStateOf(false) }
+    ReportUnsavedChanges(hasChanges)
     var editTarget by remember { mutableStateOf<TableEditTarget?>(null) }
     var editValue by remember { mutableStateOf("") }
     var invertYAxis by remember { mutableStateOf(true) }

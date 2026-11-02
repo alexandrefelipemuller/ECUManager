@@ -254,6 +254,7 @@ internal fun SecondarySerialScreenDesktop(controller: DesktopSpeeduinoController
     var protocol by remember(config) { mutableStateOf(config.protocol) }
     var protocolRaw by remember(config) { mutableStateOf(config.protocolRaw.toString()) }
     var hasChanges by remember { mutableStateOf(false) }
+    ReportUnsavedChanges(hasChanges)
 
     KioskScreenScaffold(
         title = strings["label.secondarySerialTitle"],

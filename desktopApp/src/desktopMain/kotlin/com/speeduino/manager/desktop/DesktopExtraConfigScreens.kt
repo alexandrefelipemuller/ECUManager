@@ -45,6 +45,7 @@ internal fun IdleControlScreenDesktop(controller: DesktopSpeeduinoController) {
     var stepHomeSteps by remember(settings) { mutableStateOf(settings?.stepHomeSteps?.toString() ?: "100") }
     var stepMinimumSteps by remember(settings) { mutableStateOf(settings?.stepMinimumSteps?.toString() ?: "3") }
     var hasChanges by remember { mutableStateOf(false) }
+    ReportUnsavedChanges(hasChanges)
 
     LaunchedEffect(Unit) {
         if (settings == null) {
@@ -154,6 +155,7 @@ internal fun ClosedLoopCorrectionsScreenDesktop(controller: DesktopSpeeduinoCont
     var pidIntegral by remember(config) { mutableStateOf(config?.pidIntegral?.toString() ?: "0") }
     var pidDerivative by remember(config) { mutableStateOf(config?.pidDerivative?.toString() ?: "0") }
     var hasChanges by remember { mutableStateOf(false) }
+    ReportUnsavedChanges(hasChanges)
 
     LaunchedEffect(Unit) {
         if (config == null) {

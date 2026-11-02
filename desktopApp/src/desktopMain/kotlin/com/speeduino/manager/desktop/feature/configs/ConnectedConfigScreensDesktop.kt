@@ -1,5 +1,6 @@
 package com.speeduino.manager.desktop.feature.configs
 
+import com.speeduino.manager.desktop.ReportUnsavedChanges
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -168,6 +169,7 @@ internal fun EngineProtectionEditorScreenDesktop(controller: DesktopSpeeduinoCon
     var afrEnabled by remember(config) { mutableStateOf(config?.afrProtectionEnabled ?: false) }
     var coolantEnabled by remember(config) { mutableStateOf(config?.coolantProtectionEnabled ?: false) }
     var hasChanges by remember { mutableStateOf(false) }
+    ReportUnsavedChanges(hasChanges)
     var status by remember { mutableStateOf(strings["label.calibrationLoadHint"]) }
 
     LaunchedEffect(config) {

@@ -13,8 +13,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
 import com.speeduino.manager.desktop.TableChangeConfirmationDialog
 import com.speeduino.manager.desktop.WriteSafetyDialog
+import com.speeduino.manager.desktop.LocalUnsavedChangesReporter
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Surface
 import androidx.compose.material3.FilledTonalButton
@@ -193,7 +196,8 @@ internal fun DesktopAppShell() {
                     }
 
                     Box(modifier = screenContentModifier) {
-                    ScreenHost(
+                    CompositionLocalProvider(LocalUnsavedChangesReporter provides { appState.unsavedChanges = it }) {
+ScreenHost(
                                     route = appState.currentRoute,
                                     controller = controller,
                                     connectionState = connectionState,
@@ -243,6 +247,7 @@ internal fun DesktopAppShell() {
                                         appState.currentRoute = DesktopRoute.LogViewer
                                     }
                                 )
+}
                     }
                 }
                 if (configState.isBusy) {
@@ -280,6 +285,16 @@ internal fun DesktopAppShell() {
 
         TableChangeConfirmationDialog(controller.tableChangeConfirmation)
         WriteSafetyDialog(controller.writeSafetyGate)
+
+        if (appState.pendingRoute != null) {
+            AlertDialog(
+                onDismissRequest = appState::keepEditing,
+                title = { Text(strings["unsaved.title"]) },
+                text = { Text(strings["unsaved.message"]) },
+                confirmButton = { TextButton(onClick = appState::discardAndNavigate) { Text(strings["unsaved.discard"]) } },
+                dismissButton = { TextButton(onClick = appState::keepEditing) { Text(strings["unsaved.keepEditing"]) } },
+            )
+        }
 
         if (showReportProblemDialog) {
             AlertDialog(

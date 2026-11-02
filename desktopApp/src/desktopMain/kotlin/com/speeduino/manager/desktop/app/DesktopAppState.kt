@@ -20,7 +20,33 @@ internal class DesktopAppState(
     initialSerialPort: String,
     initialBaudRate: String
 ) {
-    var currentRoute by mutableStateOf(initialRoute)
+    private var route by mutableStateOf(initialRoute)
+
+    /** A tela atual declarou edições não salvas (ver `ReportUnsavedChanges`). */
+    var unsavedChanges by mutableStateOf(false)
+
+    /** Destino aguardando a confirmação de descarte; `null` = nenhum diálogo. */
+    var pendingRoute by mutableStateOf<DesktopRoute?>(null)
+        private set
+
+    /** Com edições não salvas, a troca de tela fica pendente até o usuário descartar. */
+    var currentRoute: DesktopRoute
+        get() = route
+        set(value) {
+            if (value == route) return
+            if (unsavedChanges) pendingRoute = value else route = value
+        }
+
+    fun discardAndNavigate() {
+        val target = pendingRoute ?: return
+        pendingRoute = null
+        unsavedChanges = false
+        route = target
+    }
+
+    fun keepEditing() {
+        pendingRoute = null
+    }
     var host by mutableStateOf(initialHost)
     var port by mutableStateOf(initialPort)
     var connectionType by mutableStateOf(initialConnectionType)
