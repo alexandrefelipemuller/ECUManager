@@ -61,12 +61,12 @@ internal fun SettingsScreen(controller: DesktopSpeeduinoController) {
     val diagnosticSummary by controller.diagnosticSummary.collectAsState()
     val readOnlySafeMode by controller.readOnlySafeMode.collectAsState()
     val languageOptions = listOf(
-        AppLanguage.EN to strings["app.languageEnglish"],
-        AppLanguage.PT to strings["app.languagePortuguese"],
-        AppLanguage.ES to strings["app.languageSpanish"],
-        AppLanguage.FR to strings["app.languageFrench"],
-        AppLanguage.ID to strings["app.languageIndonesian"],
-        AppLanguage.ZH to strings["app.languageChinese"]
+        AppLanguage.EN to "English",
+        AppLanguage.PT to "Português",
+        AppLanguage.ES to "Español",
+        AppLanguage.FR to "Français",
+        AppLanguage.ID to "Bahasa Indonesia",
+        AppLanguage.ZH to "中文"
     )
     var draftSettings by remember(desktopSettings) { mutableStateOf(desktopSettings) }
     var shiftLightRpmText by remember(desktopSettings.shiftLightRpm) {
@@ -74,7 +74,7 @@ internal fun SettingsScreen(controller: DesktopSpeeduinoController) {
     }
     val effectiveUnitSystem = resolveEffectiveUnitSystem(draftSettings.unitSystem)
     val selectedLabel = languageOptions.firstOrNull { it.first == language }?.second
-        ?: strings["app.languageEnglish"]
+        ?: "English"
 
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Surface(

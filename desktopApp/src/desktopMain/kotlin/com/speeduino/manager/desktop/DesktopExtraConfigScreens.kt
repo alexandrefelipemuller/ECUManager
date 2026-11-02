@@ -112,10 +112,10 @@ internal fun IdleControlScreenDesktop(controller: DesktopSpeeduinoController) {
         if (controlMode.isPwmMode()) {
             ConfigSectionCard(
                 title = "PWM",
-                subtitle = "Saidas e frequencia da valvula de marcha lenta."
+                subtitle = "Saídas e frequência da válvula de marcha lenta."
             ) {
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    NumberField("Saidas", pwmChannels, { pwmChannels = it; hasChanges = true }, Modifier.weight(1f), range = 1..2, integerOnly = true)
+                    NumberField("Saídas", pwmChannels, { pwmChannels = it; hasChanges = true }, Modifier.weight(1f), range = 1..2, integerOnly = true)
                     NumberField("Frequencia Hz", idleValveFrequencyHz, { idleValveFrequencyHz = it; hasChanges = true }, Modifier.weight(1f))
                 }
                 ToggleField("Inverter direcao", pwmDirectionReverse) {
