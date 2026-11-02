@@ -178,7 +178,12 @@ internal fun ScreenHost(
             onOpenTriggerSettings = onOpenTriggerSettings,
             onOpenIdleControl = onOpenIdleControl,
             onOpenEngineProtection = onOpenEngineProtection,
-            onOpenClosedLoopCorrections = onOpenClosedLoopCorrections
+            onOpenClosedLoopCorrections = onOpenClosedLoopCorrections,
+            onOpenRoute = onOpenRoute
+        )
+        DesktopRoute.RevLimiter -> com.speeduino.manager.desktop.feature.configs.RevLimiterScreenDesktop(
+            controller = controller,
+            onBack = { onOpenRoute(DesktopRoute.EngineOperation) },
         )
         DesktopRoute.Ms2Wue -> com.speeduino.manager.desktop.feature.configs.Ms2WueScreen(
             isConnected = connectionState.isConnected,

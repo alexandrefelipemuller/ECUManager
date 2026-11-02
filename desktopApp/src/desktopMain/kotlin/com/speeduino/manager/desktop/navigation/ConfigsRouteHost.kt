@@ -59,7 +59,8 @@ internal fun ConfigsRouteHost(
         DesktopRoute.EngineOperation -> EngineOperationScreenDesktop(
             onOpenIdleControl = onOpenIdleControl,
             onOpenClosedLoopCorrections = onOpenClosedLoopCorrections,
-            onOpenEngineProtection = onOpenEngineProtection
+            onOpenEngineProtection = onOpenEngineProtection,
+            onOpenRevLimiter = { onOpenRoute(DesktopRoute.RevLimiter) }
         )
         DesktopRoute.InjectorConfig -> InjectorConfigScreenDesktop(controller)
         DesktopRoute.InputOutputConfig -> InputOutputEditorScreenDesktop(

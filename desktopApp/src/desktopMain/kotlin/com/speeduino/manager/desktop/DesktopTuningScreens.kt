@@ -203,6 +203,7 @@ internal fun EngineOperationScreenDesktop(
     onOpenIdleControl: () -> Unit,
     onOpenClosedLoopCorrections: () -> Unit,
     onOpenEngineProtection: () -> Unit,
+    onOpenRevLimiter: (() -> Unit)? = null,
 ) {
     val strings = LocalStrings.current
     KioskScreenScaffold(
@@ -212,6 +213,7 @@ internal fun EngineOperationScreenDesktop(
         KioskFeatureCard(strings["route.idleControl"], strings["label.idleControlSubtitle"], onClick = onOpenIdleControl)
         KioskFeatureCard(strings["route.closedLoopCorrections"], strings["label.closedLoopSubtitle"], onClick = onOpenClosedLoopCorrections)
         KioskFeatureCard(strings["route.engineProtection"], strings["label.engineProtectionSubtitle"], onClick = onOpenEngineProtection)
+        onOpenRevLimiter?.let { KioskFeatureCard(strings["config_rev_limiter_title"], strings["config_rev_limiter_desc"], onClick = it) }
     }
 }
 
