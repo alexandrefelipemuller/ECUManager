@@ -25,6 +25,7 @@ onde parar/retomar.
 | `io.ecucore.model.basemap.BaseMapAdapter` | idêntico nos dois |
 | `io.ecucore.tuning.TuningAssistantAnalyzer` + `TuningAnalyzerLabels` | lógica do Android, aliases `o2`/`ego` do core, rótulos injetáveis |
 | `io.ecucore.model.logging.LiveLogExporter` + `LiveLogExportFormat` (CSV/MSL) | Android (**item 4, parte 1**) |
+| `io.ecucore.safety.TableWriteWithUndo` (+ `TableWriteMode`, `TableWriteOutcome`) | Android (**item 4, parte 2**) |
 
 O app Android passou a depender também de `core-tuning` (antes só `core-runtime`).
 
@@ -33,8 +34,8 @@ O app Android passou a depender também de `core-tuning` (antes só `core-runtim
 | Parte | Conteúdo | Estado |
 |---|---|---|
 | 1 | Exportação de log CSV/MSL | **Feita** |
-| 2 | Caminho de gravação de tabelas (VE/ignição/AFR/dwell): ponto de retorno lido da ECU, registrar/remover desfazer, snapshot, confirmação) | **Próxima** |
-| 3 | Leitura de tabelas/configurações (pausar stream, invalidar cache, ler, fallback para sessão local, retomar) | pendente |
+| 2 | Caminho de gravação de tabelas (VE/ignição/AFR/dwell): backup antes, ponto de retorno lido da ECU, gravar, registrar/remover desfazer só após sucesso | **Feita** (ver notas abaixo) |
+| 3 | Leitura de tabelas/configurações (pausar stream, invalidar cache, ler, fallback para sessão local, retomar) | **Próxima** |
 | 4 | Backup e pontos de restauração (baixar tudo, criar/restaurar ponto, importar e restaurar, backup de segurança MS3) | pendente |
 | 5 | Ciclo de conexão (reconexão automática com `ConnectionRetryPolicy`, desligamento, pausa do stream) | pendente |
 | 6 | `SessionController` vira o dono real do estado (Desktop passa a usá-lo; Android troca as 38 chamadas `syncSessionController*`) | pendente, a mais invasiva |
@@ -61,15 +62,25 @@ Decisões de desenho já tomadas:
 - UI e textos: `Localization.kt` do Desktop é uma segunda cópia dos textos do Android (só 157 de 961 chaves
   coincidem); decidir sobre fonte única de strings / módulo de UI compartilhado.
 
-## Estado dos repositórios ao parar (2026-11-02)
+## Notas da parte 2
 
-**Nada da parte 1 foi enviado ao GitHub.** Ordem de push: ecu-core → apps.
+- `TableWriteWithUndo` não pausa stream, não mostra texto e não decide confirmação: cada app chama dentro do
+  seu "stream pausado"; a confirmação de mudança grande continua no transporte.
+- Mudanças de comportamento no **Desktop** (passou a seguir o Android): o ponto de retorno vem da ECU (antes
+  era o estado da tela) e só entra na pilha depois da gravação dar certo (antes entrava antes de gravar, e uma
+  falha deixava um desfazer falso).
+- Diferenças que ficaram por decisão de cada app:
+  - Desfazer no Desktop pula o diálogo de mudança grande (`withoutConfirmation`); no Android passa por ele.
+  - Falha do backup MS3: Android aborta a gravação; Desktop só registra aviso e grava.
+  - Desfazer da Dwell só no Desktop (o Android nunca grava Dwell em modo com desfazer).
+- Snapshots de VE (`veTuneSnapshotStore`) e Tuning Assistant continuam no Android (o Desktop não tem).
+- O pin novo do core trouxe o burn por página do Speeduino (`b` + página); o teste
+  `EcuClientRestoreConfigurationTest` do Android foi ajustado a esse contrato.
 
-- `ecu-core` (HEAD solto sobre `origin/main`): `bac726e` e `8c1a795` não enviados.
-- Desktop (`main`): `4dc2270` não enviado.
-- Android (`main`): `3260e36` e `3d270c7` não enviados.
+## Estado dos repositórios (2026-11-21)
 
-Os pins do `ecu-core` nos dois apps apontam para `8c1a795`.
+Tudo enviado ao GitHub. O Desktop agora está em `github.com/alexandrefelipemuller/ECUManager`.
+Os pins do `ecu-core` nos dois apps apontam para o commit do `TableWriteWithUndo`.
 
 ## Como validar (armadilhas conhecidas)
 

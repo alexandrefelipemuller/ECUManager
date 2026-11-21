@@ -3,6 +3,8 @@ package com.speeduino.manager.desktop
 import io.ecucore.model.basemap.BaseMapAdapter
 import io.ecucore.safety.TableChangeConfirmation
 import io.ecucore.safety.TableUndoStore
+import io.ecucore.safety.TableWriteOutcome
+import io.ecucore.safety.TableWriteWithUndo
 import io.ecucore.safety.UndoKey
 import io.ecucore.safety.UndoTableKind
 import io.ecucore.safety.VehicleMotion
@@ -162,6 +164,11 @@ internal class DesktopSpeeduinoController(
     val diagnosticSummary = _diagnosticSummary.asStateFlow()
 
     val tableUndoStore = TableUndoStore()
+    private val tableWriter = TableWriteWithUndo(
+        undoStore = tableUndoStore,
+        beforeWrite = { key -> if (key.kind != UndoTableKind.DWELL) backupBeforeMs3Write() },
+        onPreviousUnreadable = { key, e -> Logger.w(TAG, "Tabela anterior (${key.kind}) ilegível, gravando sem desfazer: ${e.message}") },
+    )
     val tableChangeConfirmation = TableChangeConfirmation()
 
     /** Aviso de uso e alerta de veículo em movimento antes de qualquer gravação (HARA H9). */
@@ -895,9 +902,7 @@ internal class DesktopSpeeduinoController(
     fun saveVeTable(table: VeTable, mapIndex: Int = 1) {
         scope.launch(Dispatchers.IO) {
             try {
-                backupBeforeMs3Write()
-                veTableState(mapIndex).value?.let { tableUndoStore.push(UndoKey(UndoTableKind.VE, mapIndex), it) }
-                withPausedLiveDataStream { it.writeVeTable(table, mapIndex) }
+                withPausedLiveDataStream { tableWriter.writeVe(it, table, mapIndex) }?.orThrow()
                 updateLocalVeTable(table, mapIndex)
                 if (mapIndex == 2) _veTable2.value = table else _veTable.value = table
             } catch (e: Exception) {
@@ -926,9 +931,7 @@ internal class DesktopSpeeduinoController(
     fun saveIgnitionTable(table: IgnitionTable, mapIndex: Int = 1) {
         scope.launch(Dispatchers.IO) {
             try {
-                backupBeforeMs3Write()
-                ignitionTableState(mapIndex).value?.let { tableUndoStore.push(UndoKey(UndoTableKind.IGNITION, mapIndex), it) }
-                withPausedLiveDataStream { it.writeIgnitionTable(table, mapIndex) }
+                withPausedLiveDataStream { tableWriter.writeIgnition(it, table, mapIndex) }?.orThrow()
                 updateLocalIgnitionTable(table, mapIndex)
                 if (mapIndex == 2) _ignitionTable2.value = table else _ignitionTable.value = table
             } catch (e: Exception) {
@@ -956,9 +959,7 @@ internal class DesktopSpeeduinoController(
     fun saveAfrTable(table: AfrTable) {
         scope.launch(Dispatchers.IO) {
             try {
-                backupBeforeMs3Write()
-                _afrTable.value?.let { tableUndoStore.push(UndoKey(UndoTableKind.AFR), it) }
-                withPausedLiveDataStream { it.writeAfrTable(table) }
+                withPausedLiveDataStream { tableWriter.writeAfr(it, table) }?.orThrow()
                 updateLocalAfrTable(table)
                 _afrTable.value = table
             } catch (e: Exception) {
@@ -975,31 +976,25 @@ internal class DesktopSpeeduinoController(
     fun undoTableWrite(key: UndoKey) {
         scope.launch(Dispatchers.IO) {
             try {
-                backupBeforeMs3Write()
-                tableChangeConfirmation.withoutConfirmation {
-                    when (key.kind) {
-                        UndoTableKind.VE -> tableUndoStore.peek<VeTable>(key)?.let { previous ->
-                            withPausedLiveDataStream { it.writeVeTable(previous, key.mapIndex) }
-                            updateLocalVeTable(previous, key.mapIndex)
-                            if (key.mapIndex == 2) _veTable2.value = previous else _veTable.value = previous
-                        }
-                        UndoTableKind.IGNITION -> tableUndoStore.peek<IgnitionTable>(key)?.let { previous ->
-                            withPausedLiveDataStream { it.writeIgnitionTable(previous, key.mapIndex) }
-                            updateLocalIgnitionTable(previous, key.mapIndex)
-                            if (key.mapIndex == 2) _ignitionTable2.value = previous else _ignitionTable.value = previous
-                        }
-                        UndoTableKind.AFR -> tableUndoStore.peek<AfrTable>(key)?.let { previous ->
-                            withPausedLiveDataStream { it.writeAfrTable(previous) }
-                            updateLocalAfrTable(previous)
-                            _afrTable.value = previous
-                        }
-                        UndoTableKind.DWELL -> tableUndoStore.peek<DwellTable>(key)?.let { previous ->
-                            withPausedLiveDataStream { it.writeDwellTable(previous) }
-                            _dwellTable.value = previous
-                        }
+                val outcome = tableChangeConfirmation.withoutConfirmation {
+                    withPausedLiveDataStream { tableWriter.undo(it, key) }
+                } ?: return@launch
+                val restored = outcome.orThrow()
+                when (key.kind) {
+                    UndoTableKind.VE -> (restored as VeTable).let {
+                        updateLocalVeTable(it, key.mapIndex)
+                        if (key.mapIndex == 2) _veTable2.value = it else _veTable.value = it
                     }
+                    UndoTableKind.IGNITION -> (restored as IgnitionTable).let {
+                        updateLocalIgnitionTable(it, key.mapIndex)
+                        if (key.mapIndex == 2) _ignitionTable2.value = it else _ignitionTable.value = it
+                    }
+                    UndoTableKind.AFR -> (restored as AfrTable).let {
+                        updateLocalAfrTable(it)
+                        _afrTable.value = it
+                    }
+                    UndoTableKind.DWELL -> _dwellTable.value = restored as DwellTable
                 }
-                tableUndoStore.pop(key)
             } catch (e: Exception) {
                 _lastError.value = e.message
                 refreshDiagnosticSummary(lastError = e.message)
@@ -1025,8 +1020,7 @@ internal class DesktopSpeeduinoController(
     fun saveDwellTable(table: DwellTable) {
         scope.launch(Dispatchers.IO) {
             try {
-                _dwellTable.value?.let { tableUndoStore.push(UndoKey(UndoTableKind.DWELL), it) }
-                withPausedLiveDataStream { it.writeDwellTable(table) }
+                withPausedLiveDataStream { tableWriter.writeDwell(it, table) }?.orThrow()
                 _dwellTable.value = table
             } catch (e: Exception) {
                 _lastError.value = e.message
@@ -2138,4 +2132,10 @@ private fun SessionSyncPrompt.toDesktop(): SyncPrompt {
         localSessionDir = localSessionDir,
         ecuSessionDir = ecuSessionDir,
     )
+}
+
+/** Devolve a tabela gravada ou relança o erro, para o `catch` de sempre do controller. */
+private fun <T : Any> TableWriteOutcome<T>.orThrow(): T = when (this) {
+    is TableWriteOutcome.Written -> table
+    is TableWriteOutcome.Failed -> throw error
 }
