@@ -249,7 +249,7 @@ private fun DrawScope.drawGauge(g: Gauge, env: DrawEnv) {
         // Mapa, gráfico e axis ainda não têm renderização própria: só a área, para manter o layout.
         GaugeType.MAP, GaugeType.GRAPH, GaugeType.AXIS ->
             drawRect(Color(0x33FFFFFF), box.topLeft, box.size, style = Stroke(width = 1.5f))
-        GaugeType.UNKNOWN -> Unit
+        GaugeType.MUSIC_LIST, GaugeType.UNKNOWN -> Unit
     }
 }
 
